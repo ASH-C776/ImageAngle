@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>ImageAngle 设计系统方案</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f5f5f5; color:#1a1a1a; padding:32px; }
+h1 { font-size:24px; margin-bottom:4px; letter-spacing:-.02em; }
+p.sub { color:#666; font-size:13px; margin-bottom:32px; }
+
+h2 { font-size:16px; margin:32px 0 12px; padding-bottom:6px; border-bottom:1px solid #e0e0e0; }
+
+/* 主题对比展示 */
+.themes { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.theme-card {
+  border:1px solid #ddd; border-radius:12px; overflow:hidden;
+}
+.theme-card .head { padding:12px 16px; font-weight:600; font-size:13px; background:#fafafa; border-bottom:1px solid #e5e5e5; }
+
+/* 深色主题预览 */
+.preview-dark { background:#0a0a0a; color:#e5e5e5; padding:20px; font-size:12px; }
+.preview-light { background:#ffffff; color:#1a1a1a; padding:20px; font-size:12px; }
+
+.preview-dark .toolbar, .preview-light .toolbar {
+  display:flex; gap:2px; margin-bottom:16px; padding:6px; border-radius:6px;
+}
+.preview-dark .toolbar { background:#141414; }
+.preview-light .toolbar { background:#f5f5f5; }
+.preview-dark .tb { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:4px; color:#888; }
+.preview-light .tb { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:4px; color:#666; }
+.preview-dark .tb.on { background:#e5e5e5; color:#0a0a0a; }
+.preview-light .tb.on { background:#1a1a1a; color:#fff; }
+.preview-dark .sep { width:1px; height:18px; background:#2a2a2a; margin:0 4px; }
+.preview-light .sep { width:1px; height:18px; background:#e0e0e0; margin:0 4px; }
+
+.preview-dark .canvas { background:#111; height:120px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#555; margin-bottom:12px; }
+.preview-light .canvas { background:#f0f0f0; height:120px; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#999; margin-bottom:12px; }
+
+.preview-dark .result-card { background:#141414; border:1px solid #2a2a2a; border-radius:8px; padding:14px; margin-bottom:10px; }
+.preview-light .result-card { background:#fafafa; border:1px solid #e5e5e5; border-radius:8px; padding:14px; margin-bottom:10px; }
+.preview-dark .lbl { font-size:10px; color:#666; margin-bottom:4px; }
+.preview-light .lbl { font-size:10px; color:#999; margin-bottom:4px; }
+.preview-dark .angle { font-size:28px; font-weight:600; font-family:monospace; }
+.preview-light .angle { font-size:28px; font-weight:600; font-family:monospace; }
+.preview-dark .badge { font-size:10px; padding:1px 8px; border-radius:3px; margin-left:8px; background:#222; color:#999; }
+.preview-light .badge { font-size:10px; padding:1px 8px; border-radius:3px; margin-left:8px; background:#eee; color:#666; }
+.preview-dark .row { display:flex; justify-content:space-between; padding:6px 8px; border-radius:4px; margin-bottom:2px; }
+.preview-light .row { display:flex; justify-content:space-between; padding:6px 8px; border-radius:4px; margin-bottom:2px; }
+.preview-dark .row.on { background:#1f1f1f; }
+.preview-light .row.on { background:#f0f0f0; }
+.preview-dark .row .a { font-family:monospace; font-weight:600; }
+.preview-light .row .a { font-family:monospace; font-weight:600; }
+.preview-dark .row .a.bad { color:#ef4444; }
+.preview-light .row .a.bad { color:#dc2626; }
+
+/* 色板 */
+.palette { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; }
+.swatch { border:1px solid #ddd; border-radius:8px; overflow:hidden; }
+.swatch .color { height:40px; }
+.swatch .info { padding:8px 10px; font-size:11px; }
+.swatch .name { font-weight:600; }
+.swatch .hex { color:#888; font-family:monospace; font-size:10px; }
+
+/* 字体层级 */
+.type-table { width:100%; border-collapse:collapse; font-size:12px; }
+.type-table th, .type-table td { text-align:left; padding:8px 12px; border-bottom:1px solid #e5e5e5; }
+.type-table th { background:#fafafa; font-weight:600; font-size:11px; color:#666; }
+.type-table .sample { font-family:monospace; }
+
+/* 组件规格 */
+.spec-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.spec { background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:16px; }
+.spec h4 { font-size:13px; margin-bottom:10px; }
+.spec ul { padding-left:16px; font-size:12px; color:#555; line-height:1.8; }
+</style>
+</head>
+<body>
+
+<h1>ImageAngle 设计系统</h1>
+<p class="sub">黑白灰双主题 · 统一字体层级 · 组件规格</p>
+
+<h2>一、两套主题对比</h2>
+<div class="themes">
+  <div class="theme-card">
+    <div class="head">深色主题（默认）</div>
+    <div class="preview-dark">
+      <div class="toolbar">
+        <div class="tb">📁</div><div class="tb">📂</div><div class="sep"></div>
+        <div class="tb">◀</div><div class="tb">☰</div><div class="tb">▶</div><div class="sep"></div>
+        <div class="tb">✋</div><div class="tb">⇋</div><div class="tb on">╱</div><div class="tb">🦷</div>
+      </div>
+      <div class="canvas">全景片画布区</div>
+      <div class="result-card">
+        <div class="lbl">当前测量 · 序号 1</div>
+        <div><span class="angle">+12.4°</span><span class="badge">近中</span></div>
+      </div>
+      <div class="row on"><span>1 · 16</span><span class="a">+12.4°</span></div>
+      <div class="row"><span>2 · 21</span><span class="a">-8.2°</span></div>
+      <div class="row"><span>3 · --</span><span class="a bad">+35.1°</span></div>
+    </div>
+  </div>
+  <div class="theme-card">
+    <div class="head">浅色主题</div>
+    <div class="preview-light">
+      <div class="toolbar">
+        <div class="tb">📁</div><div class="tb">📂</div><div class="sep"></div>
+        <div class="tb">◀</div><div class="tb">☰</div><div class="tb">▶</div><div class="sep"></div>
+        <div class="tb">✋</div><div class="tb">⇋</div><div class="tb on">╱</div><div class="tb">🦷</div>
+      </div>
+      <div class="canvas">全景片画布区</div>
+      <div class="result-card">
+        <div class="lbl">当前测量 · 序号 1</div>
+        <div><span class="angle">+12.4°</span><span class="badge">近中</span></div>
+      </div>
+      <div class="row on"><span>1 · 16</span><span class="a">+12.4°</span></div>
+      <div class="row"><span>2 · 21</span><span class="a">-8.2°</span></div>
+      <div class="row"><span>3 · --</span><span class="a bad">+35.1°</span></div>
+    </div>
+  </div>
+</div>
+
+<h2>二、色板（完整令牌）</h2>
+<div class="palette">
+  <div class="swatch"><div class="color" style="background:#0a0a0a;"></div><div class="info"><div class="name">bg-dark</div><div class="hex">#0a0a0a</div></div></div>
+  <div class="swatch"><div class="color" style="background:#141414;"></div><div class="info"><div class="name">surface-dark</div><div class="hex">#141414</div></div></div>
+  <div class="swatch"><div class="color" style="background:#1c1c1c;"></div><div class="info"><div class="name">surface-2-dark</div><div class="hex">#1c1c1c</div></div></div>
+  <div class="swatch"><div class="color" style="background:#2a2a2a;"></div><div class="info"><div class="name">border-dark</div><div class="hex">#2a2a2a</div></div></div>
+  <div class="swatch"><div class="color" style="background:#e5e5e5;"></div><div class="info"><div class="name">text-dark</div><div class="hex">#e5e5e5</div></div></div>
+  <div class="swatch"><div class="color" style="background:#9a9a9a;"></div><div class="info"><div class="name">text-2-dark</div><div class="hex">#9a9a9a</div></div></div>
+  <div class="swatch"><div class="color" style="background:#666;"></div><div class="info"><div class="name">text-3-dark</div><div class="hex">#666666</div></div></div>
+  <div class="swatch"><div class="color" style="background:#ef4444;"></div><div class="info"><div class="name">danger</div><div class="hex">#ef4444</div></div></div>
+  <div class="swatch"><div class="color" style="background:#ffffff;"></div><div class="info"><div class="name">bg-light</div><div class="hex">#ffffff</div></div></div>
+  <div class="swatch"><div class="color" style="background:#fafafa;"></div><div class="info"><div class="name">surface-light</div><div class="hex">#fafafa</div></div></div>
+  <div class="swatch"><div class="color" style="background:#f0f0f0;"></div><div class="info"><div class="name">surface-2-light</div><div class="hex">#f0f0f0</div></div></div>
+  <div class="swatch"><div class="color" style="background:#e0e0e0;"></div><div class="info"><div class="name">border-light</div><div class="hex">#e0e0e0</div></div></div>
+  <div class="swatch"><div class="color" style="background:#1a1a1a;"></div><div class="info"><div class="name">text-light</div><div class="hex">#1a1a1a</div></div></div>
+  <div class="swatch"><div class="color" style="background:#666;"></div><div class="info"><div class="name">text-2-light</div><div class="hex">#666666</div></div></div>
+  <div class="swatch"><div class="color" style="background:#999;"></div><div class="info"><div class="name">text-3-light</div><div class="hex">#999999</div></div></div>
+  <div class="swatch"><div class="color" style="background:#dc2626;"></div><div class="info"><div class="name">danger-light</div><div class="hex">#dc2626</div></div></div>
+</div>
+
+<h2>三、字体层级</h2>
+<table class="type-table">
+  <tr><th>用途</th><th>字号</th><th>字重</th><th>字体</th><th>颜色（深/浅）</th><th>示例</th></tr>
+  <tr><td>大角度数字</td><td>28px</td><td>600</td><td>等宽 monospace</td><td>text / text</td><td class="sample">+12.4°</td></tr>
+  <tr><td>列表角度</td><td>12px</td><td>600</td><td>等宽 monospace</td><td>text / text</td><td class="sample">+12.4°</td></tr>
+  <tr><td>异常角度</td><td>12px</td><td>600</td><td>等宽 monospace</td><td>danger / danger</td><td class="sample" style="color:#ef4444">+35.1°</td></tr>
+  <tr><td>区块标题</td><td>10px</td><td>600</td><td>Inter</td><td>text-3 / text-3</td><td>当前测量 · 序号 1</td></tr>
+  <tr><td>正文</td><td>12px</td><td>400</td><td>Inter</td><td>text-2 / text-2</td><td>牙位 16</td></tr>
+  <tr><td>状态栏</td><td>10px</td><td>400</td><td>等宽 monospace</td><td>text-3 / text-3</td><td>参考线：点击两点</td></tr>
+  <tr><td>方向标签</td><td>10px</td><td>500</td><td>Inter</td><td>text-2 / text-2</td><td>近中 / 远中</td></tr>
+</table>
+
+<h2>四、关键规则</h2>
+<div class="spec-grid">
+  <div class="spec">
+    <h4>角度数字颜色规则</h4>
+    <ul>
+      <li>正角和负角都用主文字色（深色=#e5e5e5，浅色=#1a1a1a），靠 +/− 符号区分方向</li>
+      <li>方向标签（近中/远中）用次文字色，灰色胶囊背景</li>
+      <li>只有异常值（|角度|>30°）才用红色 danger 色</li>
+      <li>不再用绿色/琥珀色区分正负，保持黑白灰统一</li>
+    </ul>
+  </div>
+  <div class="spec">
+    <h4>画布线条颜色</h4>
+    <ul>
+      <li>参考线：浅灰虚线（深色=#d4d4d4，浅色=#1a1a1a）</li>
+      <li>牙长轴：中灰实线（深色=#a3a3a3，浅色=#525252）</li>
+      <li>选中线：提亮一档 + 加粗 0.5px</li>
+      <li>画布背景：深色=#111，浅色=#f0f0f0（中性灰，不刺眼）</li>
+    </ul>
+  </div>
+  <div class="spec">
+    <h4>按钮规范</h4>
+    <ul>
+      <li>纯图标按钮 30×30px，圆角 5px</li>
+      <li>默认：透明底 + text-2 灰图标</li>
+      <li>hover：surface-2 底 + text 主色图标</li>
+      <li>激活态：深色=白底黑图标 / 浅色=黑底白图标</li>
+      <li>禁用：opacity 30%</li>
+    </ul>
+  </div>
+  <div class="spec">
+    <h4>主题切换</h4>
+    <ul>
+      <li>工具栏最右侧加太阳/月亮图标按钮</li>
+      <li>点击切换，所有颜色用变量驱动，平滑过渡 200ms</li>
+      <li>选择持久化到 session.json，下次打开记住</li>
+      <li>默认深色主题（医疗影像工具惯例）</li>
+    </ul>
+  </div>
+</div>
+
+</body>
+</html>

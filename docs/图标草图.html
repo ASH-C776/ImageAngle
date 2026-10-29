@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>ImageAngle 工具栏图标草图</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#0b0d12;
+    color:#e2e8f0;
+    font-family:'Segoe UI', system-ui, sans-serif;
+    padding:32px;
+  }
+  h1 { font-size:18px; font-weight:600; margin-bottom:6px; color:#f1f5f9; }
+  p.sub { font-size:13px; color:#64748b; margin-bottom:28px; }
+
+  .toolbar {
+    background:#12161e;
+    border:1px solid #262e3a;
+    border-radius:8px;
+    padding:8px 10px;
+    display:inline-flex;
+    align-items:center;
+    gap:2px;
+    margin-bottom:36px;
+  }
+  .sep { width:1px; height:22px; background:#2b3340; margin:0 6px; }
+  .btn {
+    width:32px; height:32px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:5px; cursor:pointer;
+    color:#94a3b8;
+    transition:background .12s, color .12s;
+    position:relative;
+  }
+  .btn:hover { background:#1a2230; color:#e2e8f0; }
+  .btn.active { background:#2563eb; color:#fff; }
+  .btn svg { width:18px; height:18px; }
+
+  .grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    gap:14px;
+    max-width:900px;
+  }
+  .cell {
+    background:#12161e;
+    border:1px solid #262e3a;
+    border-radius:8px;
+    padding:16px 10px;
+    text-align:center;
+  }
+  .cell .icon-box {
+    width:48px; height:48px;
+    margin:0 auto 10px;
+    background:#0b0d12;
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    color:#94a3b8;
+  }
+  .cell .icon-box svg { width:24px; height:24px; }
+  .cell .name { font-size:12px; color:#cbd5e1; }
+  .cell .key { font-size:10px; color:#475569; margin-top:2px; }
+
+  .note {
+    margin-top:32px; padding:14px 16px;
+    background:#0f141b; border-left:3px solid #2563eb;
+    border-radius:4px; font-size:12.5px; color:#94a3b8; line-height:1.7;
+    max-width:760px;
+  }
+</style>
+</head>
+<body>
+
+<h1>ImageAngle 工具栏图标草图</h1>
+<p class="sub">PS 风格细线图标 · 深色主题 · 24×24 画布，1.5px 描边</p>
+
+<!-- 工具栏预览 -->
+<div class="toolbar">
+  <div class="btn" title="打开"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 10h18"/></svg></div>
+  <div class="btn" title="文件夹"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+  <div class="sep"></div>
+  <div class="btn" title="上一张"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+  <div class="btn" title="列表"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg></div>
+  <div class="btn" title="下一张"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+  <div class="sep"></div>
+  <div class="btn" title="抓手"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6.5a1.5 1.5 0 0 0-3 0V11"/><path d="M15 10.5V5.5a1.5 1.5 0 0 0-3 0V10"/><path d="M12 10V4.5a1.5 1.5 0 0 0-3 0V10"/><path d="M9 10.5V7a1.5 1.5 0 0 0-3 0v6c0 4 2.5 7 6 7s6-3 6-7v-2a1.5 1.5 0 0 0-3 0"/></svg></div>
+  <div class="btn" title="镜像"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M7 8L3 12l4 4"/><path d="M17 8l4 4-4 4"/><path d="M3 12h18" stroke-dasharray="2 2"/></svg></div>
+  <div class="btn active" title="参考线"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4" stroke-dasharray="3 3"/><circle cx="4" cy="20" r="1.5" fill="currentColor"/><circle cx="20" cy="4" r="1.5" fill="currentColor"/></svg></div>
+  <div class="btn" title="牙轴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4c-1 0-2 .5-2 2 0 3 .5 6 0 10-.3 2 .5 4 2 4s2.3-2 2-4c-.5-4 0-7 0-10 0-1.5-1-2-2-2z"/><line x1="10" y1="5" x2="10" y2="21" stroke-dasharray="2 2"/></svg></div>
+  <div class="sep"></div>
+  <div class="btn" title="撤销"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></div>
+  <div class="btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></div>
+  <div class="btn" title="清空"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H8L3 15V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg></div>
+  <div class="sep"></div>
+  <div class="btn" title="导出"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+</div>
+
+<!-- 大图单看 -->
+<div class="grid">
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M3 10h18"/></svg></div><div class="name">打开</div><div class="key">Ctrl+O</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div><div class="name">文件夹</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div><div class="name">上一张</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg></div><div class="name">列表</div><div class="key">L</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div><div class="name">下一张</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6.5a1.5 1.5 0 0 0-3 0V11"/><path d="M15 10.5V5.5a1.5 1.5 0 0 0-3 0V10"/><path d="M12 10V4.5a1.5 1.5 0 0 0-3 0V10"/><path d="M9 10.5V7a1.5 1.5 0 0 0-3 0v6c0 4 2.5 7 6 7s6-3 6-7v-2a1.5 1.5 0 0 0-3 0"/></svg></div><div class="name">抓手</div><div class="key">H</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M7 8L3 12l4 4"/><path d="M17 8l4 4-4 4"/><path d="M3 12h18" stroke-dasharray="2 2"/></svg></div><div class="name">镜像</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="4" stroke-dasharray="3 3"/><circle cx="4" cy="20" r="1.5" fill="currentColor"/><circle cx="20" cy="4" r="1.5" fill="currentColor"/></svg></div><div class="name">参考线</div><div class="key">R</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4c-1 0-2 .5-2 2 0 3 .5 6 0 10-.3 2 .5 4 2 4s2.3-2 2-4c-.5-4 0-7 0-10 0-1.5-1-2-2-2z"/><line x1="10" y1="5" x2="10" y2="21" stroke-dasharray="2 2"/></svg></div><div class="name">牙轴</div><div class="key">T</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></div><div class="name">撤销</div><div class="key">Ctrl+Z</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></div><div class="name">删除</div><div class="key">Del</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H8L3 15V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg></div><div class="name">清空</div><div class="key">Ctrl+Shift+Z</div></div>
+  <div class="cell"><div class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="name">导出</div></div>
+</div>
+
+<div class="note">
+<b>设计说明：</b><br>
+· 24×24 画布，1.8px 描边，圆头端点，和 PS / Figma 图标风格一致<br>
+· 激活态蓝底白字（#2563eb），hover 深灰底，和现有按钮高亮规范一致<br>
+· 「参考线」图标用虚线斜线 + 两端圆点，对应实际画线方式<br>
+· 「牙轴」图标是一颗牙 + 中心虚线，直观表达牙长轴<br>
+· 「镜像」图标是中间竖虚线 + 左右箭头，表示水平翻转<br>
+· 「清空」图标是一块板上打叉，和删除（垃圾桶）区分开
+</div>
+
+</body>
+</html>

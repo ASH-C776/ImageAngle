@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>近中与远中 · 牙齿倾角示意图</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI','Microsoft YaHei UI',sans-serif; background:#fafafa; padding:40px; color:#1a1a1a; }
+h1 { font-size:20px; margin-bottom:6px; }
+.sub { color:#666; font-size:13px; margin-bottom:30px; }
+.legend { display:flex; gap:24px; margin-bottom:20px; font-size:13px; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:6px; }
+.swatch { width:24px; height:3px; border-radius:2px; }
+.note { background:#fff; border:1px solid #e0e0e0; border-radius:10px; padding:16px 20px; margin-top:24px; font-size:13px; line-height:1.8; color:#444; max-width:760px; }
+.note b { color:#1a1a1a; }
+</style>
+</head>
+<body>
+
+<h1>近中倾斜 vs 远中倾斜</h1>
+<p class="sub">放射学惯例：看片时患者右侧在图像左侧 · FDI 四象限牙位法</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="swatch" style="background:#06b6d4;"></div>参考线（基准方向）</div>
+  <div class="legend-item"><div class="swatch" style="background:#ef4444;"></div>牙长轴（根→冠）</div>
+  <div class="legend-item"><div class="swatch" style="background:#f59e0b;"></div>近中方向（正角）</div>
+  <div class="legend-item"><div class="swatch" style="background:#22c55e;"></div>远中方向（负角）</div>
+</div>
+
+<svg viewBox="0 0 800 520" width="100%" style="max-width:800px;">
+  <!-- 背景 -->
+  <rect width="800" height="520" fill="#f5f5f5" rx="12"/>
+
+  <!-- 中线 -->
+  <line x1="400" y1="60" x2="400" y2="460" stroke="#999" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="400" y="50" text-anchor="middle" font-size="12" fill="#666">中线</text>
+
+  <!-- ===== 上排牙（上颌）===== -->
+  <!-- 象限标签 -->
+  <text x="200" y="85" text-anchor="middle" font-size="13" font-weight="600" fill="#333">右上 · 1x</text>
+  <text x="600" y="85" text-anchor="middle" font-size="13" font-weight="600" fill="#333">左上 · 2x</text>
+
+  <!-- 上排基线 -->
+  <line x1="80" y1="110" x2="720" y2="110" stroke="#06b6d4" stroke-width="2" stroke-dasharray="8,4"/>
+
+  <!-- 右上象限牙齿（图像左侧）→ 近中=向右倾斜=正 -->
+  <!-- 牙1：近中倾斜（冠向右倒）-->
+  <g transform="translate(140,110)">
+    <!-- 牙根 -->
+    <line x1="0" y1="0" x2="-8" y2="-50" stroke="#ef4444" stroke-width="2.5"/>
+    <!-- 牙冠（向右倾 = 近中）-->
+    <line x1="-8" y1="-50" x2="10" y2="-90" stroke="#ef4444" stroke-width="2.5"/>
+    <!-- 根端点 -->
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <!-- 冠端点 -->
+    <circle cx="10" cy="-90" r="3" fill="#22c55e"/>
+    <!-- 角度标注 -->
+    <text x="10" y="-100" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="600">+15°</text>
+    <text x="10" y="-115" text-anchor="middle" font-size="10" fill="#f59e0b">近中</text>
+  </g>
+
+  <!-- 牙2：直立 -->
+  <g transform="translate(220,110)">
+    <line x1="0" y1="0" x2="0" y2="-50" stroke="#ccc" stroke-width="2"/>
+    <line x1="0" y1="-50" x2="0" y2="-90" stroke="#ccc" stroke-width="2"/>
+    <circle cx="0" cy="0" r="3" fill="#ccc"/>
+    <circle cx="0" cy="-90" r="3" fill="#ccc"/>
+    <text x="0" y="-105" text-anchor="middle" font-size="10" fill="#999">直立 0°</text>
+  </g>
+
+  <!-- 牙3：远中倾斜（冠向左倒）-->
+  <g transform="translate(300,110)">
+    <line x1="0" y1="0" x2="8" y2="-50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="8" y1="-50" x2="-5" y2="-90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="-5" cy="-90" r="3" fill="#22c55e"/>
+    <text x="-5" y="-100" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="600">-10°</text>
+    <text x="-5" y="-115" text-anchor="middle" font-size="10" fill="#22c55e">远中</text>
+  </g>
+
+  <!-- 左上象限牙齿（图像右侧）→ 近中=向左倾斜=正 -->
+  <!-- 牙4：近中倾斜（冠向左倒 = 向中线）-->
+  <g transform="translate(500,110)">
+    <line x1="0" y1="0" x2="8" y2="-50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="8" y1="-50" x2="-10" y2="-90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="-10" cy="-90" r="3" fill="#22c55e"/>
+    <text x="-10" y="-100" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="600">+12°</text>
+    <text x="-10" y="-115" text-anchor="middle" font-size="10" fill="#f59e0b">近中</text>
+  </g>
+
+  <!-- 牙5：远中倾斜（冠向右倒）-->
+  <g transform="translate(580,110)">
+    <line x1="0" y1="0" x2="-8" y2="-50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="-8" y1="-50" x2="8" y2="-90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="8" cy="-90" r="3" fill="#22c55e"/>
+    <text x="8" y="-100" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="600">-8°</text>
+    <text x="8" y="-115" text-anchor="middle" font-size="10" fill="#22c55e">远中</text>
+  </g>
+
+  <!-- 牙6：直立 -->
+  <g transform="translate(660,110)">
+    <line x1="0" y1="0" x2="0" y2="-50" stroke="#ccc" stroke-width="2"/>
+    <line x1="0" y1="-50" x2="0" y2="-90" stroke="#ccc" stroke-width="2"/>
+    <circle cx="0" cy="0" r="3" fill="#ccc"/>
+    <circle cx="0" cy="-90" r="3" fill="#ccc"/>
+    <text x="0" y="-105" text-anchor="middle" font-size="10" fill="#999">直立</text>
+  </g>
+
+  <!-- ===== 下排牙（下颌）===== -->
+  <text x="200" y="310" text-anchor="middle" font-size="13" font-weight="600" fill="#333">右下 · 4x</text>
+  <text x="600" y="310" text-anchor="middle" font-size="13" font-weight="600" fill="#333">左下 · 3x</text>
+
+  <!-- 下排基线 -->
+  <line x1="80" y1="340" x2="720" y2="340" stroke="#06b6d4" stroke-width="2" stroke-dasharray="8,4"/>
+
+  <!-- 右下象限（图像左侧）→ 近中=向右=正 -->
+  <g transform="translate(140,340)">
+    <line x1="0" y1="0" x2="-8" y2="50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="-8" y1="50" x2="10" y2="90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="10" cy="90" r="3" fill="#22c55e"/>
+    <text x="10" y="110" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="600">+18°</text>
+    <text x="10" y="125" text-anchor="middle" font-size="10" fill="#f59e0b">近中</text>
+  </g>
+
+  <g transform="translate(220,340)">
+    <line x1="0" y1="0" x2="0" y2="50" stroke="#ccc" stroke-width="2"/>
+    <line x1="0" y1="50" x2="0" y2="90" stroke="#ccc" stroke-width="2"/>
+    <circle cx="0" cy="0" r="3" fill="#ccc"/>
+    <circle cx="0" cy="90" r="3" fill="#ccc"/>
+  </g>
+
+  <g transform="translate(300,340)">
+    <line x1="0" y1="0" x2="8" y2="50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="8" y1="50" x2="-5" y2="90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="-5" cy="90" r="3" fill="#22c55e"/>
+    <text x="-5" y="110" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="600">-6°</text>
+    <text x="-5" y="125" text-anchor="middle" font-size="10" fill="#22c55e">远中</text>
+  </g>
+
+  <!-- 左下象限（图像右侧）→ 近中=向左=正 -->
+  <g transform="translate(500,340)">
+    <line x1="0" y1="0" x2="8" y2="50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="8" y1="50" x2="-10" y2="90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="-10" cy="90" r="3" fill="#22c55e"/>
+    <text x="-10" y="110" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="600">+14°</text>
+    <text x="-10" y="125" text-anchor="middle" font-size="10" fill="#f59e0b">近中</text>
+  </g>
+
+  <g transform="translate(580,340)">
+    <line x1="0" y1="0" x2="-8" y2="50" stroke="#ef4444" stroke-width="2.5"/>
+    <line x1="-8" y1="50" x2="8" y2="90" stroke="#ef4444" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="3" fill="#f59e0b"/>
+    <circle cx="8" cy="90" r="3" fill="#22c55e"/>
+    <text x="8" y="110" text-anchor="middle" font-size="12" fill="#22c55e" font-weight="600">-9°</text>
+    <text x="8" y="125" text-anchor="middle" font-size="10" fill="#22c55e">远中</text>
+  </g>
+
+  <g transform="translate(660,340)">
+    <line x1="0" y1="0" x2="0" y2="50" stroke="#ccc" stroke-width="2"/>
+    <line x1="0" y1="50" x2="0" y2="90" stroke="#ccc" stroke-width="2"/>
+    <circle cx="0" cy="0" r="3" fill="#ccc"/>
+    <circle cx="0" cy="90" r="3" fill="#ccc"/>
+  </g>
+
+  <!-- 方向箭头标注 -->
+  <!-- 上排：近中方向箭头 -->
+  <text x="100" y="155" font-size="11" fill="#f59e0b">← 远中</text>
+  <text x="350" y="155" font-size="11" fill="#f59e0b">近中 →</text>
+  <text x="450" y="155" font-size="11" fill="#f59e0b">← 近中</text>
+  <text x="700" y="155" font-size="11" fill="#f59e0b">远中 →</text>
+
+  <!-- 下排 -->
+  <text x="100" y="385" font-size="11" fill="#f59e0b">← 远中</text>
+  <text x="350" y="385" font-size="11" fill="#f59e0b">近中 →</text>
+  <text x="450" y="385" font-size="11" fill="#f59e0b">← 近中</text>
+  <text x="700" y="385" font-size="11" fill="#f59e0b">远中 →</text>
+
+  <!-- 图例：端点 -->
+  <circle cx="100" cy="490" r="3" fill="#f59e0b"/>
+  <text x="110" y="494" font-size="11" fill="#666">牙根点</text>
+  <circle cx="180" cy="490" r="3" fill="#22c55e"/>
+  <text x="190" y="494" font-size="11" fill="#666">牙冠点</text>
+  <text x="260" y="494" font-size="11" fill="#999">| 近中 = 牙冠向中线倾斜 = 正角度 | 远中 = 牙冠向外侧倾斜 = 负角度</text>
+</svg>
+
+<div class="note">
+  <b>一句话总结</b><br>
+  <b>近中（mesial）</b>：牙冠朝<b>中线</b>方向倾斜 → 记为 <b>正角（+）</b><br>
+  <b>远中（distal）</b>：牙冠朝<b>外侧</b>（远离中线）方向倾斜 → 记为 <b>负角（−）</b><br><br>
+  <b>为什么左右象限符号规则相反？</b><br>
+  因为"近中"永远是朝中线。在图像左侧（右上1x / 右下4x），中线在右边，所以冠向右倒 = 近中 = 正；<br>
+  在图像右侧（左上2x / 左下3x），中线在左边，所以冠向左倒 = 近中 = 正。<br><br>
+  <b>未填牙位时怎么办？</b><br>
+  软件按牙根所在半侧给临时符号：左半侧默认"向右倒=正"，右半侧默认"向左倒=正"，并提示需人工确认。
+</div>
+
+</body>
+</html>

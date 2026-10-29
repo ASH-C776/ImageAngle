@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ImageAngle UI 草图 v1</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231E293B'/%3E%3Cpath d='M8 24 L20 10' stroke='%23F87171' stroke-width='3'/%3E%3Cpath d='M20 10 L27 18' stroke='%2338BDF8' stroke-width='3'/%3E%3C/svg%3E">
+<style>
+/* ===== 基础（窄屏单列） ===== */
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#0b1220;color:#f8fafc;font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;line-height:1.5;}
+.page{max-width:1120px;margin:0 auto;padding:16px;}
+.page-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.page-head h1{font-size:20px;letter-spacing:.5px;}
+.page-head .tag{font-size:12px;color:#94a3b8;border:1px solid #334155;border-radius:999px;padding:3px 10px;margin-left:8px;}
+.stepper{display:flex;flex-wrap:wrap;gap:6px;}
+.step{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border:1px solid #334155;border-radius:8px;background:#0f172a;color:#cbd5e1;font-size:13px;cursor:pointer;}
+.step:hover{background:#1e293b;}
+.step.on{background:#2563eb;border-color:#60a5fa;color:#fff;font-weight:600;}
+.step .k{font-size:10px;color:#94a3b8;}
+.step.on .k{color:#bfdbfe;}
+
+/* 主窗口 */
+.win{border:1px solid #334155;border-radius:12px;background:#0f172a;overflow:hidden;}
+.win-title{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #1e293b;background:#0f172a;font-size:12.5px;color:#94a3b8;}
+.win-title .dots{display:flex;gap:6px;}
+.win-title .dots i{width:11px;height:11px;border-radius:50%;display:block;}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #1e293b;background:#111827;}
+.tbtn{min-height:44px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border:1px solid #334155;border-radius:8px;background:#1e293b;color:#e2e8f0;font-size:13px;cursor:pointer;}
+.tbtn:hover{background:#334155;}
+.tbtn.primary{background:#2563eb;border-color:#3b82f6;}
+.tbtn svg{flex:none;}
+.tsep{width:1px;height:28px;background:#334155;}
+.tmeta{margin-left:auto;display:flex;gap:8px;align-items:center;font-size:12px;color:#94a3b8;}
+
+.app{display:flex;flex-wrap:wrap;}
+/* 画布 */
+.canvas{position:relative;flex:1 1 480px;min-height:420px;background:#0a0f1c;}
+.canvas svg{width:100%;height:auto;display:block;}
+.zoom{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:3px;background:#0f172a;border:1px solid #334155;border-radius:8px;padding:3px;font-size:12px;color:#cbd5e1;}
+.zoom span{display:inline-block;padding:3px 9px;border-radius:6px;background:#1e293b;cursor:pointer;}
+.zoom b{display:inline-block;padding:3px 6px;font-weight:600;min-width:44px;text-align:center;}
+.loupe{position:absolute;left:60%;top:26%;width:56px;height:56px;border-radius:50%;border:2px solid #38bdf8;background:rgba(14,116,144,.18);display:flex;align-items:center;justify-content:center;font-size:11px;color:#7dd3fc;}
+.loupe::before{content:'';position:absolute;width:56px;height:1px;background:rgba(56,189,248,.7);}
+.loupe::after{content:'';position:absolute;height:56px;width:1px;background:rgba(56,189,248,.7);}
+.canvas-note{position:absolute;left:10px;right:10px;bottom:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:rgba(15,23,42,.88);border:1px solid #334155;border-radius:8px;padding:6px 10px;font-size:12px;color:#cbd5e1;}
+.canvas-note .warn{color:#fbbf24;}
+.empty-layer{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;color:#64748b;text-align:center;padding:20px;}
+.empty-layer .big{font-size:16px;color:#94a3b8;}
+/* 结果栏 */
+.result{position:relative;width:100%;flex:0 0 300px;border-left:1px solid #1e293b;background:#0f172a;display:flex;flex-direction:column;min-height:420px;}
+.rhead{padding:10px 12px;border-bottom:1px solid #1e293b;font-size:12.5px;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;}
+.rcard{margin:10px 12px;border:1px solid #334155;border-radius:10px;background:#111827;padding:12px;}
+.rcard .t{font-size:12px;color:#94a3b8;margin-bottom:6px;}
+.rcard .angle{font-size:30px;font-weight:700;letter-spacing:.5px;}
+.rcard .row{display:flex;gap:8px;align-items:center;margin-top:8px;font-size:12.5px;color:#cbd5e1;flex-wrap:wrap;}
+.rcard input{background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:4px 6px;width:56px;font-size:13px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:999px;font-size:12px;}
+.badge.m{background:#065f46;color:#6ee7b7;}
+.badge.d{background:#7c2d12;color:#fdba74;}
+.badge.blank{background:#334155;color:#94a3b8;border:1px dashed #475569;}
+.conf{display:inline-flex;align-items:center;gap:4px;border:1px solid #334155;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:12px;color:#cbd5e1;}
+.conf-cell{display:inline-flex;align-items:center;gap:4px;border:1px solid #334155;border-radius:6px;padding:1px 7px;cursor:pointer;font-size:12px;color:#cbd5e1;min-height:26px;}
+.conf-cell:hover{background:#1e293b;}
+.rlist{margin:0 12px;flex:1;}
+table{width:100%;border-collapse:collapse;table-layout:fixed;}
+colgroup col:nth-child(1){width:11%;}colgroup col:nth-child(2){width:15%;}colgroup col:nth-child(3){width:21%;}colgroup col:nth-child(4){width:19%;}colgroup col:nth-child(5){width:24%;}colgroup col:nth-child(6){width:10%;}
+th{font-size:11.5px;color:#64748b;font-weight:600;text-align:left;padding:6px 6px;border-bottom:1px solid #1e293b;}
+td{padding:8px 6px;border-bottom:1px solid #1e293b;font-size:13px;color:#e2e8f0;min-height:44px;vertical-align:middle;}
+tbody tr{cursor:pointer;}
+tbody tr:hover{background:#111827;}
+tr.on{background:#1d4ed8;color:#fff;}
+tr.on td{color:#fff;}
+tr.err td{color:#f87171;}
+tr.warn td{color:#fbbf24;}
+.del{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border:1px solid #475569;border-radius:6px;color:#94a3b8;cursor:pointer;}
+.del:hover{color:#f87171;border-color:#f87171;}
+.rfoot{margin:10px 12px;padding-top:10px;border-top:1px solid #1e293b;font-size:12px;color:#64748b;line-height:1.8;}
+
+/* 状态控制 */
+[data-state="S0"] .v-s1{display:none!important;}
+[data-state="S0"] .v-s0{display:flex!important;}
+[data-state="S0"] .res{display:none!important;}
+[data-state="S1"] .v-s0{display:none!important;}
+[data-state="S1"] .need-ref{display:none!important;}
+[data-state="S2"] .v-s0{display:none!important;}
+[data-state="S2"] .need-ref{display:none!important;}
+[data-state="S2"] .tooth{display:none!important;}
+[data-state="S2"] .tooth-half{display:block!important;}
+[data-state="S3"] .v-s0{display:none!important;}
+[data-state="S3"] .tooth-half{display:none!important;}
+.state-blank,.state-mid{display:none;}
+[data-state="S1"] .state-blank{display:block;}
+[data-state="S2"] .state-mid{display:block;}
+[data-state="S3"] .state-done{display:block;}
+[data-state="S3"] .card-done{display:block;}
+[data-state="S1"] .card-blank{display:block;}
+[data-state="S2"] .card-mid{display:block;}
+[data-state="S0"] .card-none{display:block;}
+.card-done,.card-blank,.card-mid,.card-none{display:none;}
+[data-state="S0"] .zoom,[data-state="S0"] .canvas-note,[data-state="S0"] .loupe{display:none;}
+[data-state="S1"] .loupe{display:none;}
+.tooth{display:block;}
+.tooth-half{display:none;}
+.st-note{display:none;}
+[data-state="S0"] .st-s0{display:block;}
+[data-state="S1"] .st-s1{display:block;}
+[data-state="S2"] .st-s2{display:block;}
+[data-state="S3"] .st-s3{display:block;}
+.empty-layer .big{color:#cbd5e1;}
+
+/* 说明区 */
+.info{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;}
+.icard{flex:1 1 300px;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;font-size:13px;color:#cbd5e1;}
+.icard h3{font-size:14px;color:#f8fafc;margin-bottom:8px;display:flex;gap:8px;align-items:center;}
+.icard h3 .n{display:inline-flex;width:22px;height:22px;border-radius:6px;background:#2563eb;color:#fff;font-size:12px;align-items:center;justify-content:center;flex:none;}
+.icard ul{padding-left:0;list-style:none;}
+.icard li{padding:4px 0 4px 16px;position:relative;line-height:1.6;}
+.icard li::before{content:'';position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:2px;background:#475569;}
+.icard .hl{color:#93c5fd;}
+.icard .fix{color:#fbbf24;}
+.draft{border:1px dashed #475569;background:#0a0f1c;border-radius:12px;padding:10px 14px;margin-top:14px;font-size:12.5px;color:#94a3b8;line-height:1.8;}
+
+/* toast */
+.toast{position:fixed;right:20px;bottom:20px;background:#1e293b;border:1px solid #475569;color:#e2e8f0;border-radius:10px;padding:12px 18px;font-size:13px;max-width:320px;display:none;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.toast.show{display:block;}
+
+/* 宽屏横排 */
+@media (min-width:820px){
+  .result{width:300px;}
+  .app{flex-wrap:nowrap;}
+}
+@media (max-width:640px){
+  .toolbar .tbtn{flex:1 1 auto;justify-content:center;}
+  .rcard .angle{font-size:24px;}
+  td,th{padding:6px 4px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>ImageAngle 界面草图<span class="tag">v2 · 决策已定稿</span></h1>
+      <div style="font-size:12px;color:#64748b;margin-top:3px;">口腔全景片 · 牙齿近远中轴倾角手动测量 · 本页为草图示意，非成品</div>
+    </div>
+    <div class="stepper" id="stepper">
+      <div class="step on" data-s="S3">完成态</div>
+      <div class="step" data-s="S0">未打开图片</div>
+      <div class="step" data-s="S1">未画参考线</div>
+      <div class="step" data-s="S2">测量中</div>
+    </div>
+  </div>
+
+  <div class="win" id="win" data-state="S3">
+    <div class="win-title">
+      <span class="dots"><i style="background:#f87171"></i><i style="background:#fbbf24"></i><i style="background:#4ade80"></i></span>
+      ImageAngle — 全景片测量（示意窗口）
+    </div>
+    <div class="toolbar">
+      <span class="tbtn" data-toast><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h13l3 3v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M9 20v-6h6v6"/></svg>打开图片</span>
+      <span class="tbtn" data-toast><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>打开文件夹</span>
+      <span class="tsep"></span>
+      <span class="tbtn primary" data-toast>画参考线<small style="font-size:10px;color:#bfdbfe;">R</small></span>
+      <span class="tbtn primary" data-toast>画牙长轴<small style="font-size:10px;color:#bfdbfe;">T</small></span>
+      <span class="tbtn" data-toast><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg>镜像</span>
+      <span class="tsep"></span>
+      <span class="tbtn" data-toast>撤销<small style="font-size:10px;color:#64748b;">Ctrl+Z</small></span>
+      <span class="tbtn" data-toast>删除</span>
+      <span class="tsep"></span>
+      <span class="tbtn" data-toast>◀ 上一张</span>
+      <span class="tbtn" data-toast>下一张 ▶</span>
+      <span class="tsep"></span>
+      <span class="tbtn" data-toast>导出 CSV</span>
+      <span class="tmeta">P20261029_001.jpg · 已测 4/14 颗</span>
+    </div>
+
+    <div class="app">
+      <!-- 画布区 -->
+      <div class="canvas" id="canvas">
+        <div class="empty-layer v-s0"><div class="big">尚未打开图片</div><div>将图片拖入此区域，或点击左上角「打开图片」<br>支持 JPG / JPEG / PNG / TIFF / BMP</div></div>
+        <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" aria-label="示意全景片">
+          <rect x="30" y="30" width="640" height="360" rx="14" fill="#cbd5e1" stroke="#e2e8f0" stroke-width="1"/>
+          <path d="M 150 320 Q 350 130 550 320" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <g stroke="#475569" stroke-width="2">
+            <line x1="168" y1="310" x2="168" y2="330"/><line x1="200" y1="282" x2="200" y2="302"/>
+            <line x1="232" y1="258" x2="232" y2="278"/><line x1="262" y1="242" x2="262" y2="262"/>
+            <line x1="292" y1="232" x2="292" y2="252"/><line x1="322" y1="227" x2="322" y2="247"/>
+            <line x1="352" y1="227" x2="352" y2="247"/><line x1="382" y1="232" x2="382" y2="252"/>
+            <line x1="412" y1="242" x2="412" y2="262"/><line x1="442" y1="258" x2="442" y2="278"/>
+            <line x1="474" y1="282" x2="474" y2="302"/><line x1="506" y1="310" x2="506" y2="330"/>
+          </g>
+          <!-- 参考线（S2/S3） -->
+          <g class="need-ref">
+            <line x1="392" y1="52" x2="396" y2="368" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="7 4"/>
+            <circle cx="392" cy="52" r="5" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <circle cx="396" cy="368" r="5" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+            <text x="404" y="74" fill="#7dd3fc" font-size="13">参考线 87.3°（腭中缝）</text>
+          </g>
+          <!-- 牙 1（完成态完整） -->
+          <g class="tooth" data-lid="a">
+            <line x1="424" y1="268" x2="427" y2="246" stroke="#f87171" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"/>
+            <line x1="427" y1="246" x2="434" y2="176" stroke="#f87171" stroke-width="2.5"/>
+            <circle cx="424" cy="268" r="4" fill="#fbbf24"/>
+            <circle cx="434" cy="176" r="4" fill="#4ade80"/>
+            <text x="446" y="202" fill="#fda4af" font-size="12">+12.5° 近中</text>
+          </g>
+          <!-- 牙 2 -->
+          <g class="tooth" data-lid="b">
+            <line x1="266" y1="260" x2="264" y2="240" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"/>
+            <line x1="264" y1="240" x2="256" y2="174" stroke="#fbbf24" stroke-width="2.5"/>
+            <circle cx="266" cy="260" r="4" fill="#fbbf24"/>
+            <circle cx="256" cy="174" r="4" fill="#4ade80"/>
+            <text x="196" y="206" fill="#fcd34d" font-size="12">−15.3° 远中*</text>
+          </g>
+          <!-- 牙 3 -->
+          <g class="tooth" data-lid="c">
+            <line x1="512" y1="288" x2="514" y2="266" stroke="#f87171" stroke-width="1.5" stroke-dasharray="3 3" opacity=".7"/>
+            <line x1="514" y1="266" x2="521" y2="214" stroke="#f87171" stroke-width="2.5"/>
+            <circle cx="512" cy="288" r="4" fill="#fbbf24"/>
+            <circle cx="521" cy="214" r="4" fill="#4ade80"/>
+            <text x="531" y="236" fill="#fda4af" font-size="12">+8.2° 近中</text>
+          </g>
+          <!-- 牙 1 半成品（S2 预览） -->
+          <g class="tooth-half">
+            <line x1="424" y1="268" x2="452" y2="150" stroke="#f87171" stroke-width="2" stroke-dasharray="5 4"/>
+            <circle cx="424" cy="268" r="4" fill="#fbbf24"/>
+            <text x="458" y="176" fill="#fda4af" font-size="12">移动光标预览中</text>
+          </g>
+        </svg>
+        <div class="zoom"><span data-zm="minus">−</span><b id="zpct">125%</b><span data-zm="plus">+</span><span data-zm="fit">适应</span></div>
+        <div class="loupe">2×</div>
+        <div class="canvas-note">
+          <span class="st-note st-s0">打开图片后开始测量</span>
+          <span class="st-note st-s1"><span class="warn">未画参考线：</span>点击「画参考线」定义本图基准方向；此时画牙长轴，角度结果留空（空白结果），画参考线后自动补算</span>
+          <span class="st-note st-s2"><span class="warn">测量中：</span>已点牙根中点，请点击牙冠中点（顺序固定：根 → 冠）</span>
+          <span class="st-note st-s3">已测 4 颗 · 参考线 87.3° · 点击右侧列表行 ↔ 画布线条联动（画布示意 3 条线）</span>
+        </div>
+      </div>
+
+      <!-- 结果栏 -->
+      <div class="result res" id="result">
+        <div class="rhead"><span>结果栏</span><span style="font-size:11px;">序号自动生成</span></div>
+
+        <!-- 当前测量：未打开图片 -->
+        <div class="rcard card-none"><div class="t">当前测量</div><div style="color:#64748b;font-size:13px;">打开图片后开始测量</div></div>
+        <!-- 当前测量：未画参考线 → 空白结果 -->
+        <div class="rcard card-blank"><div class="t">当前测量</div>
+          <div style="font-size:26px;color:#64748b;font-weight:700;">（空白）</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:4px;">未画参考线，不计算角度<br>画好参考线后自动补算并提示（已定稿）</div>
+        </div>
+        <!-- 当前测量：测量中 -->
+        <div class="rcard card-mid"><div class="t">当前测量</div>
+          <div style="font-size:15px;color:#fbbf24;">测量中…</div>
+          <div style="font-size:12px;color:#94a3b8;margin-top:4px;">已点牙根点（琥珀），请点牙冠点（绿色）</div>
+        </div>
+        <!-- 当前测量：完成 -->
+        <div class="rcard card-done"><div class="t">当前测量 · 序号 3</div>
+          <div style="display:flex;align-items:baseline;gap:10px;">
+            <span class="angle" style="color:#4ade80;">+12.5°</span>
+            <span class="badge m">近中</span>
+          </div>
+          <div class="row">
+            <span>牙位 <input value="16" placeholder="可空"></span>
+            <span class="conf" id="confbtn" data-conf="空">置信度 空 · 点击循环</span>
+          </div>
+        </div>
+
+        <div class="rhead" style="border-top:1px solid #1e293b;margin-top:2px;"><span>已测列表</span><span style="font-size:11px;">点击行 ↔ 画布联动</span></div>
+        <div class="rlist">
+          <table>
+            <colgroup><col><col><col><col><col></colgroup>
+            <thead><tr><th>#</th><th>牙位</th><th>角度</th><th>方向</th><th>置信度</th><th>删</th></tr></thead>
+            <tbody>
+              <tr data-lid="a"><td>1</td><td>15</td><td>+8.2°</td><td><span class="badge m">近中</span></td><td><span class="conf-cell" data-conf="中">中</span></td><td><span class="del" data-toast><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg></span></td></tr>
+              <tr class="warn" data-lid="b"><td>2</td><td>—</td><td>−15.3°</td><td><span class="badge d">远中</span></td><td><span class="conf-cell" data-conf="空">空</span></td><td><span class="del" data-toast><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg></span></td></tr>
+              <tr class="on" data-lid="c"><td>3</td><td>16</td><td>+12.5°</td><td><span class="badge m">近中</span></td><td><span class="conf-cell" data-conf="空">空</span></td><td><span class="del" data-toast><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg></span></td></tr>
+              <tr class="err" data-toast-row><td>4</td><td>25</td><td style="font-weight:700;">+31.2°</td><td><span class="badge d">近中</span></td><td><span class="conf-cell" data-conf="中">中</span></td><td><span class="del" data-toast><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6"/></svg></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="rfoot">
+          本图 4 颗 · 异常（|角度|&gt;30°）自动标红，导出时写入 note<br>
+          操作者 / 患者编号：打开文件夹时录入（待定）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <div class="icard">
+      <h3><span class="n">1</span>交互规则</h3>
+      <ul>
+        <li>画好的线<b>端点可拖拽</b>，角度实时更新</li>
+        <li>拖动<b>参考线</b>端点：全部已测牙角度重算</li>
+        <li>列表行 ↔ 画布线条<b>双向高亮</b>联动</li>
+        <li>重复测量同一牙位：<b>覆盖 + 提示</b>（无模态弹窗，可撤销）</li>
+        <li>撤销（Ctrl+Z）按图保留历史，切图不丢</li>
+      </ul>
+    </div>
+    <div class="icard">
+      <h3><span class="n">2</span>测量规则（已定）</h3>
+      <ul>
+        <li>牙长轴：根→冠，<span class="fix">22% 根尖回退</span>（显示约定，不影响角度值）</li>
+        <li><span class="hl">未画参考线 → 输出空白结果</span>，不计算角度</li>
+        <li>未填牙位：按图像方向给临时符号并提示复核（*）</li>
+        <li>角度归一化至 [−90°, +90°]，近中为正</li>
+        <li>支持 JPG / JPEG / PNG / TIFF / BMP（v1 不含 DICOM）</li>
+      </ul>
+    </div>
+    <div class="icard">
+      <h3><span class="n">3</span>已定稿决策</h3>
+      <ul>
+        <li>方向约定：<span class="hl">放射学惯例</span>（患者右侧=图像左侧）+ 镜像按钮，导出头记录</li>
+        <li>未画参考线 → 空白结果；画参考线后<span class="fix">自动补算</span>并提示</li>
+        <li>置信度：默认空，点击循环 高/中/低/空</li>
+        <li>技术栈：<span class="hl">Python + PySide6 + OpenCV</span></li>
+        <li>参考线：腭中缝优先，类型下拉记录（腭中缝/竖直/其他）</li>
+        <li>未填牙位：临时符号 + 提示；导出 note 注明</li>
+        <li>重复测量：覆盖 + 提示 + 可撤销（无模态）· seq 每图重排</li>
+        <li>22% 根尖回退：显示约定，比例可配置</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="draft">
+    草图说明：本页是「可点击的高保真线框」——顶部四个状态可切换预览；右侧列表行与画布线条联动高亮、置信度点击循环为真实演示；其余按钮点击仅弹提示。画布内全景片为<strong>示意图形</strong>，非真实影像。布局与决策已定稿（v2），下一步进入 P1 开发。
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  try{
+    var win=document.getElementById('win');
+    var steps=document.querySelectorAll('.step');
+    var toast=document.getElementById('toast');
+    var tTimer=null;
+    function showToast(msg){
+      toast.textContent=msg;toast.className='toast show';
+      clearTimeout(tTimer);tTimer=setTimeout(function(){toast.className='toast';},2200);
+    }
+    function setState(s){
+      win.setAttribute('data-state',s);
+      for(var i=0;i<steps.length;i++){steps[i].className='step'+(steps[i].getAttribute('data-s')===s?' on':'');}
+    }
+    for(var i=0;i<steps.length;i++){
+      (function(el){el.onclick=function(){setState(el.getAttribute('data-s'));};})(steps[i]);
+    }
+    var zpct=document.getElementById('zpct');
+    var z=125;
+    function setZoom(v){
+      z=Math.max(10,Math.min(800,Math.round(v)));
+      zpct.textContent=z+'%';
+      showToast('草图示意：缩放 '+(z===125?'适应窗口':'至 '+z+'%'));
+    }
+    var zbtns=document.querySelectorAll('.zoom [data-zm]');
+    for(var zj=0;zj<zbtns.length;zj++){
+      (function(el){
+        el.onclick=function(ev){ev.stopPropagation();
+          var k=el.getAttribute('data-zm');
+          if(k==='minus'){setZoom(z/1.25);}
+          else if(k==='plus'){setZoom(z*1.25);}
+          else{setZoom(125);}
+        };
+      })(zbtns[zj]);
+    }
+    var CONF_ORDER=['空','高','中','低'];
+    function nextConf(cur){var i=CONF_ORDER.indexOf(cur);return CONF_ORDER[(i+1)%CONF_ORDER.length];}
+    var confCells=document.querySelectorAll('.conf-cell');
+    for(var ci=0;ci<confCells.length;ci++){
+      (function(el){el.onclick=function(ev){ev.stopPropagation();var nx=nextConf(el.getAttribute('data-conf')||'空');el.setAttribute('data-conf',nx);el.textContent=nx;showToast('草图示意：置信度 = '+nx);};})(confCells[ci]);
+    }
+    var confbtn=document.getElementById('confbtn');
+    if(confbtn){confbtn.onclick=function(ev){ev.stopPropagation();var nx=nextConf(confbtn.getAttribute('data-conf')||'空');confbtn.setAttribute('data-conf',nx);confbtn.textContent='置信度 '+nx+' · 点击循环';showToast('草图示意：置信度 = '+nx);};}
+    var btns=document.querySelectorAll('[data-toast]');
+    for(var j=0;j<btns.length;j++){
+      (function(el){el.onclick=function(ev){ev.stopPropagation();showToast('草图示意：此功能在开发阶段实现');};})(btns[j]);
+    }
+    var trs=document.querySelectorAll('tbody tr');
+    var teeth=document.querySelectorAll('.tooth');
+    function clearSel(){
+      for(var a=0;a<trs.length;a++){trs[a].classList.remove('on');}
+      for(var b=0;b<teeth.length;b++){teeth[b].classList.remove('th-on');}
+    }
+    function selLid(lid){
+      clearSel();
+      for(var a=0;a<trs.length;a++){if(trs[a].getAttribute('data-lid')===lid){trs[a].className+=' on';}}
+      for(var b=0;b<teeth.length;b++){if(teeth[b].getAttribute('data-lid')===lid){teeth[b].classList.add('th-on');}}
+    }
+    for(var k=0;k<trs.length;k++){
+      (function(el){
+        el.onclick=function(){
+          if(el.hasAttribute('data-toast-row')){showToast('草图示意：此行对应线条未画出');return;}
+          var lid=el.getAttribute('data-lid');selLid(lid);
+        };
+      })(trs[k]);
+    }
+    for(var m=0;m<teeth.length;m++){
+      (function(el){
+        el.style.cursor='pointer';
+        el.onclick=function(ev){ev.stopPropagation();selLid(el.getAttribute('data-lid'));};
+      })(teeth[m]);
+    }
+  }catch(e){
+    var t=document.getElementById('toast');if(t){t.textContent='脚本未运行：本页仍可按静态草图阅读。';t.className='toast show';}
+  }
+})();
+</script>
+</body>
+</html>

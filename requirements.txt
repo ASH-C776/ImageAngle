@@ -1,0 +1,9 @@
+PySide6>=6.8
+numpy>=1.26
+pytest>=8.0
+
+# 仅开发脚本用（scripts/make_icon.py、make_sample_panoramic.py），运行时不 import
+pillow>=10
+
+# 打包用（运行程序本身不需要）：py -m PyInstaller ImageAngle.spec --noconfirm
+pyinstaller>=6.22

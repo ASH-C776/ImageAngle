@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>结果栏布局方案</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI','Microsoft YaHei UI',sans-serif; background:#f5f5f5; padding:40px; color:#1a1a1a; }
+h1 { font-size:16px; margin-bottom:20px; font-weight:600; }
+.compare { display:flex; gap:40px; }
+.col { flex:1; max-width:360px; }
+.col h2 { font-size:12px; color:#888; margin-bottom:12px; font-weight:600; }
+
+/* 当前效果 */
+.old-card { background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:16px; margin-bottom:16px; }
+.old-title { font-size:11px; color:#888; font-weight:600; margin-bottom:10px; }
+.old-angle { font-size:36px; font-weight:700; font-family:monospace; }
+.old-badge { display:inline-block; background:#f0f0f0; color:#666; border-radius:4px; padding:4px 10px; font-size:11px; vertical-align:middle; margin-left:8px; }
+.old-fdi { margin-top:10px; font-size:11px; color:#888; }
+.old-fdi input { background:#fff; border:1px solid #ddd; border-radius:6px; padding:4px 8px; font-size:13px; margin-left:6px; width:60px; }
+
+/* 新方案 */
+.new-card { background:#fff; border:1px solid #e5e5e5; border-radius:10px; padding:16px; margin-bottom:12px; }
+.new-title { font-size:11px; color:#888; font-weight:600; margin-bottom:12px; letter-spacing:.03em; }
+.new-row { display:flex; align-items:baseline; gap:10px; }
+.new-angle { font-size:22px; font-weight:600; font-family:monospace; color:#1a1a1a; }
+.new-badge { font-size:11px; color:#666; background:#f0f0f0; padding:2px 8px; border-radius:4px; }
+.new-fdi-label { font-size:11px; color:#999; }
+.new-fdi-input { border:1px solid #ddd; border-radius:4px; padding:3px 8px; font-size:12px; width:60px; }
+
+/* 列表行 */
+.new-list-head { font-size:11px; color:#888; font-weight:600; margin-bottom:8px; }
+.new-row-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; font-size:12px; }
+.new-row-item:hover { background:#f5f5f5; }
+.new-row-item.sel { background:#f0f0f0; }
+.new-seq { color:#999; width:16px; font-family:monospace; font-size:11px; }
+.new-fdi { color:#555; width:28px; font-family:monospace; }
+.new-ang { color:#1a1a1a; font-weight:600; font-family:monospace; width:55px; text-align:right; }
+.new-ang.bad { color:#dc2626; }
+.new-dir { color:#999; font-size:10px; }
+.new-del { margin-left:auto; color:#ccc; cursor:pointer; }
+.new-del:hover { color:#dc2626; }
+
+.note { background:#fff3cd; border:1px solid #ffeaa7; border-radius:8px; padding:12px; margin-top:20px; font-size:12px; color:#856404; max-width:360px; }
+.note b { display:block; margin-bottom:6px; }
+</style>
+</head>
+<body>
+
+<h1>结果栏布局方案 · 统一字体层级与卡片对齐</h1>
+
+<div class="compare">
+  <div class="col">
+    <h2>当前问题</h2>
+    <div class="old-card">
+      <div class="old-title">当前测量 · 序号 1</div>
+      <div class="old-angle">+15.7°</div>
+      <span class="old-badge">近中</span>
+      <div class="old-fdi">牙位 <input value="23"></div>
+    </div>
+    <div class="old-card">
+      <div class="old-title">已测牙齿 · 1</div>
+      <div style="padding:6px 10px;">
+        <span style="color:#999;font-size:11px;">1</span>
+        <span style="color:#555;font-size:12px;margin-left:10px;">23</span>
+        <span style="color:#1a1a1a;font-weight:600;margin-left:20px;">+15.7°</span>
+        <span style="color:#999;font-size:10px;margin-left:6px;">近中</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <h2>新方案（统一规范）</h2>
+    <div class="new-card">
+      <div class="new-title">当前测量 · 序号 1</div>
+      <div class="new-row">
+        <span class="new-angle">+15.7°</span>
+        <span class="new-badge">近中</span>
+      </div>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:6px;">
+        <span class="new-fdi-label">牙位</span>
+        <input class="new-fdi-input" value="23">
+      </div>
+    </div>
+    <div class="new-card">
+      <div class="new-list-head">已测牙齿 · 1</div>
+      <div class="new-row-item sel">
+        <span class="new-seq">1</span>
+        <span class="new-fdi">23</span>
+        <span class="new-ang">+15.7°</span>
+        <span class="new-dir">近中</span>
+        <span class="new-del">×</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <b>统一规范</b>
+  · 卡片内边距统一 16px，两个卡片间距 12px<br>
+  · 标题 11px / 600 / #888，全大写感<br>
+  · 大角度 22px / 600 / #1a1a1a（不再 36px 突兀）<br>
+  · 方向标签 11px 灰底胶囊<br>
+  · 列表行 12px，固定列宽右对齐<br>
+  · 卡片高度跟随内容，不拉伸撑高
+</div>
+
+</body>
+</html>

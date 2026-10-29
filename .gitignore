@@ -1,0 +1,24 @@
+_shots/
+__pycache__/
+*.pyc
+session.json
+session.json.bak*
+theme_pref.json
+window_pref.json
+.DS_Store
+.idea/
+.vscode/
+
+# 调试用的离屏渲染截图（tools/preview*.png）
+tools/preview*.png
+
+# 打包产物（用 ImageAngle.spec 重新生成，不入库）
+build/
+dist/
+*.manifest
+
+# WorkBuddy 的项目内工作记录（本地笔记，不入库）
+.workbuddy/
+
+# 内部开发交接笔记：只在本地保留，不随开源发布（对外文档是 README + CHANGELOG）
+交接文档.md
