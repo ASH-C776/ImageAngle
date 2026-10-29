@@ -23,14 +23,14 @@
 
 ## 下载
 
-到 [Releases](../../releases) 选一个，不用装 Python：
+到本仓库的 **Releases** 页面选一个，不用装 Python：
 
 | 文件 | 体积 | 适合谁 |
 |---|---|---|
-| `ImageAngle-1.0.5-Portable.exe`（便携包） | 33.5 MB | 单文件，拷贝到任何 Windows 10/11 机器双击即用，免安装 |
-| `ImageAngle-1.0.5-Setup.exe`（安装包） | 24.5 MB | 装到当前用户目录（**不需要管理员**），有开始菜单 / 桌面快捷方式和卸载项 |
+| 便携包 · `ImageAngle-1.0.5-便携包.exe`（GitHub 上是 `-Portable.exe`） | 33.5 MB | 单文件，拷贝到任何 Windows 10/11 机器双击即用，免安装 |
+| 安装包 · `ImageAngle-1.0.5-安装包.exe`（GitHub 上是 `-Setup.exe`） | 24.5 MB | 装到当前用户目录（**不需要管理员**），有开始菜单 / 桌面快捷方式和卸载项 |
 
-GitHub 的附件名不支持非 ASCII 字符，所以下载下来是英文名；本地 `py scripts/build.py` 产出的文件名是 `ImageAngle-1.0.5-便携包.exe` / `ImageAngle-1.0.5-安装包.exe`，内容一致。
+GitHub 的附件名不支持非 ASCII 字符，中文包名会被剔成空（`ImageAngle-1.0.5-.exe`），所以那边用 `-Portable` / `-Setup`；Gitee 保留中文名。两个站点的文件内容完全一致，本地 `py scripts/build.py` 产出的也是中文名。
 
 两个包功能完全相同，测量记录也互通（都存在 `%APPDATA%\ImageAngle`）。安装版启动更快（约 0.57 s vs 1.4 s），因为单文件版每次启动都要把 81 MB 运行时解压到临时目录。
 
@@ -110,6 +110,12 @@ py scripts/build.py --setup      # 只出安装包（需要 Inno Setup 6）
 - `installer/ChineseSimplified.isl` — Inno Setup 简体中文语言包，取自
   [kira-96/Inno-Setup-Chinese-Simplified-Translation](https://github.com/kira-96/Inno-Setup-Chinese-Simplified-Translation)
 - 运行依赖 PySide6（LGPLv3）与 numpy（BSD-3-Clause），打包产物中保留其许可证
+
+## 镜像与反馈
+
+- GitHub：<https://github.com/ASH-C776/ImageAngle>
+- Gitee：<https://gitee.com/kijeye/ImageAngle>
+- 问题反馈走任一仓库的 Issues 都可以，两个站点的代码与发行版同步
 
 ## License
 
