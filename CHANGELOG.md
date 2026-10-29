@@ -15,6 +15,7 @@
 
 **发布**：仓库 <https://github.com/ASH-C776/ImageAngle>（MIT），
 Release 同时提供便携包与安装包两个附件。
+另有 Gitee 镜像 <https://gitee.com/kijeye/ImageAngle>，同样的两个包、中文附件名。
 
 ## v1.0.4 · 2026-10-29 · 单文件 100 MB → 33.5 MB（去掉 OpenCV + 裁掉用不到的 Qt）
 
