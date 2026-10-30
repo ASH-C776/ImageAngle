@@ -38,9 +38,13 @@ EXCLUDES = [
     # ---- 开发期依赖 ----
     'tkinter', 'unittest', 'pydoc', 'doctest', 'pytest', '_pytest',
     # ---- numpy 构建期工具 ----
-    # 别顺手排 numpy.linalg/random/fft：import numpy 时 numpy.lib → matrixlib
-    # 就会拉 linalg，排掉同样是启动即崩（实测报 No module named 'numpy.linalg'）。
+    # 别顺手排 numpy.linalg：import numpy 时 numpy.lib → matrixlib 就会拉 linalg，
+    # 排掉是启动即崩（实测报 No module named 'numpy.linalg'）。
     'numpy.f2py', 'numpy.distutils',
+    # 这几个是 numpy 2.x 的懒加载子模块，本程序一个都没用到（只用
+    # frombuffer / percentile / clip / astype 这类基础运算）。
+    # 删掉前用「屏蔽 import + 跑全量测试」验证过，确认无依赖。
+    'numpy.random', 'numpy.fft', 'numpy.polynomial', 'numpy.testing',
 ]
 
 #: 用不到的 Qt6*.dll（QtSvg 要留：窗口内的 SVG 图标靠它渲染）

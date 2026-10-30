@@ -291,7 +291,9 @@ class Canvas(QWidget):
         if self._hide_ref:
             self._hide_ref = False   # 恢复被临时隐藏的旧参考线
             changed = True
-        if self.mode in (self.MODE_REF, self.MODE_TOOTH):
+        # 牙轴改为常亮模式：取消只清当前这条线，不退出模式（再点「牙轴」才退出）。
+        # 参考线仍保持原行为：取消即退出模式。
+        if self.mode == self.MODE_REF:
             self.set_mode(self.MODE_NONE)   # 会 emit modeChanged，按钮取消高亮
             changed = True
         if changed:
@@ -528,7 +530,13 @@ class Canvas(QWidget):
                 self.add_tooth(Point(self._pending['p1'].x(), self._pending['p1'].y()),
                                Point(img.x(), img.y()))
                 self._pending = None
-                self.set_mode(self.MODE_NONE)
+                # 牙轴常亮：画完一条不退出，可继续画下一条；只有再点一次
+                # 「牙轴」按钮才退出（走 set_mode(MODE_NONE)）。
+                # ⚠ 这里**不要**再发 drawStepChanged(1)：add_tooth 内部的
+                # toothChanged 是同步连接，主窗口已经把「当前测量」刷成刚测出的
+                # 结果了；若再发 step=1，面板会被覆盖回「… 点击牙根点」，看起来
+                # 就像测量数据没实时显示。下一次点击时 canvas 会自然发 step=2。
+                self.statusText.emit('牙长轴已记录 · 继续画下一条，或再点「牙轴」退出')
             self.update()
             return
 

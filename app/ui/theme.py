@@ -24,6 +24,12 @@ DARK = {
     'accent_soft': 'rgba(34,203,168,0.14)', 'accent_line': 'rgba(34,203,168,0.48)',
     'accent_ink': '#7cf0d8', 'accent_fg': '#062b23',
     'danger': '#f85149', 'warn': '#d29922', 'success': '#3fb950',
+    # 方向胶囊（近中 / 远中）：只用色相区分、不代表好坏，刻意避开 danger 的红，
+    # 近中跟随主色薄荷绿，远中取紫，色盲友好度也比「红/绿」这一对高。
+    'dir_mesial': '#7cf0d8', 'dir_mesial_bg': 'rgba(34,203,168,0.16)',
+    'dir_mesial_line': 'rgba(34,203,168,0.42)',
+    'dir_distal': '#d2a8ff', 'dir_distal_bg': 'rgba(210,168,255,0.16)',
+    'dir_distal_line': 'rgba(210,168,255,0.40)',
     'workspace': '#1f1f1f',
     'hover': 'rgba(255,255,255,0.07)', 'hover2': 'rgba(255,255,255,0.11)',
     'btn': '#262626', 'btn_hover': '#303030', 'btn_press': '#202020',
@@ -43,6 +49,11 @@ LIGHT = {
     'accent_soft': 'rgba(9,105,218,0.12)', 'accent_line': 'rgba(9,105,218,0.45)',
     'accent_ink': '#0969da', 'accent_fg': '#ffffff',
     'danger': '#cf222e', 'warn': '#9a6700', 'success': '#1a7f37',
+    # 方向胶囊（近中 / 远中）：亮色下用蓝 / 紫，与 danger(#cf222e) 拉开距离。
+    'dir_mesial': '#0969da', 'dir_mesial_bg': 'rgba(9,105,218,0.10)',
+    'dir_mesial_line': 'rgba(9,105,218,0.35)',
+    'dir_distal': '#8250df', 'dir_distal_bg': 'rgba(130,80,223,0.10)',
+    'dir_distal_line': 'rgba(130,80,223,0.35)',
     'workspace': '#eaeef2',
     'hover': 'rgba(31,35,40,0.04)', 'hover2': 'rgba(31,35,40,0.08)',
     'btn': '#f6f8fa', 'btn_hover': '#eaeef2', 'btn_press': '#d8dee4',
@@ -74,6 +85,12 @@ C_ACCENT_FG = DARK['accent_fg']   # 填充式主按钮上的前景色（暗色�
 C_DANGER = DARK['danger']
 C_WARN = DARK['warn']
 C_SUCCESS = DARK['success']
+C_DIR_MESIAL = DARK['dir_mesial']
+C_DIR_MESIAL_BG = DARK['dir_mesial_bg']
+C_DIR_MESIAL_LINE = DARK['dir_mesial_line']
+C_DIR_DISTAL = DARK['dir_distal']
+C_DIR_DISTAL_BG = DARK['dir_distal_bg']
+C_DIR_DISTAL_LINE = DARK['dir_distal_line']
 C_WORKSPACE = DARK['workspace']
 C_HOVER = DARK['hover']
 C_HOVER2 = DARK['hover2']
@@ -318,6 +335,8 @@ def set_theme(name: str) -> None:
     global C_TEXT, C_TEXT2, C_TEXT3
     global C_ACCENT, C_ACCENT_H, C_ACCENT_P, C_ACCENT_SOFT, C_ACCENT_LINE, C_ACCENT_INK, C_ACCENT_FG
     global C_DANGER, C_WARN, C_SUCCESS, C_WORKSPACE
+    global C_DIR_MESIAL, C_DIR_MESIAL_BG, C_DIR_MESIAL_LINE
+    global C_DIR_DISTAL, C_DIR_DISTAL_BG, C_DIR_DISTAL_LINE
     global C_HOVER, C_HOVER2
     global C_BTN, C_BTN_HOVER, C_BTN_PRESS, C_BTN_DISABLED_BG, C_BTN_DISABLED_BORDER, C_BTN_DISABLED_TEXT
     global C_TOOL_TEXT, C_TOOL_TEXT_DISABLED
@@ -331,6 +350,10 @@ def set_theme(name: str) -> None:
     C_ACCENT_SOFT = p['accent_soft']; C_ACCENT_LINE = p['accent_line']
     C_ACCENT_INK = p['accent_ink']; C_ACCENT_FG = p['accent_fg']
     C_DANGER = p['danger']; C_WARN = p['warn']; C_SUCCESS = p['success']
+    C_DIR_MESIAL = p['dir_mesial']; C_DIR_MESIAL_BG = p['dir_mesial_bg']
+    C_DIR_MESIAL_LINE = p['dir_mesial_line']
+    C_DIR_DISTAL = p['dir_distal']; C_DIR_DISTAL_BG = p['dir_distal_bg']
+    C_DIR_DISTAL_LINE = p['dir_distal_line']
     C_WORKSPACE = p['workspace']
     C_HOVER = p['hover']; C_HOVER2 = p['hover2']
     C_BTN = p['btn']; C_BTN_HOVER = p['btn_hover']; C_BTN_PRESS = p['btn_press']
@@ -351,3 +374,19 @@ def set_theme(name: str) -> None:
 
 def is_dark() -> bool:
     return THEME_NAME == 'dark'
+
+
+def numeric_font(base=None) -> 'QFont':
+    """启用 tnum（等宽数字）特性的字体，用于角度读数等大数字。
+
+    比例字体里 '1' 和 '0' 宽度不同，拖动端点时读数会左右抖动；
+    QSS 不支持 font-variant-numeric，所以走 QFont.setFeature（Qt 6.7+）。
+    旧版 Qt 无此 API 时静默退化为比例数字，不影响功能。
+    """
+    from PySide6.QtGui import QFont
+    f = QFont(base) if base is not None else QFont()
+    try:
+        f.setFeature(QFont.Tag('tnum'), 1)
+    except Exception:
+        pass
+    return f

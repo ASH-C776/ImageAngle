@@ -25,6 +25,10 @@ a = Analysis(                                           # noqa: F821
     datas=[
         (os.path.join(root, 'resources', 'icon.ico'), 'resources'),
         (os.path.join(root, 'resources', 'icon.png'), 'resources'),
+        # 关于页打赏区：微信 / 支付宝收款码（已裁掉姓名文字的正方形 PNG）
+        (os.path.join(root, 'resources', 'donate_wechat.png'), 'resources'),
+        (os.path.join(root, 'resources', 'donate_alipay.png'), 'resources'),
+        # 关于页「减弱动效」复选框的对勾图标
     ],
     hiddenimports=[],
     hookspath=[],
@@ -32,7 +36,7 @@ a = Analysis(                                           # noqa: F821
     runtime_hooks=[],
     excludes=EXCLUDES,
     noarchive=False,
-    optimize=0,
+    optimize=2,      # 同单文件版：丢 docstring / assert，见 ImageAngle.spec 的注释
 )
 
 prune(a)

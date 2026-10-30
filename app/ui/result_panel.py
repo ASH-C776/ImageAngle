@@ -11,7 +11,8 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import QPointF, Qt, QTimer, Signal
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import (
     QApplication,
     QFrame,
@@ -20,6 +21,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -29,10 +31,16 @@ from ..model.session import Tooth
 from . import theme
 from .theme import F_CAP, F_SM
 
-# ---------- 列宽（编号 / 牙号 / 角度 / 方向 / 置信 / 删除）----------
-W_SEQ, W_FDI, W_ANG, W_DIR, W_CONF, W_DEL = 26, 40, 66, 38, 24, 18
-GAP = 6          # 列间距
-PAD_L = 10       # 内容左内边距（表头与数据行必须一致）
+# ---------- 列宽（编号 / 牙号 / 角度 / 方向）----------
+# 「置信」列已移除（纯手工点选的标记，无自动推断、临床意义有限）。
+# 四列不再各给死宽度，而是按权重瓜分整行剩余宽度：面板拉宽时四列一起变宽，
+# 不会出现「左边几列挤成一坨、右边一大片空白」的样子。
+# 表头与数据行必须用同一组权重 + 同一 PAD_L / GAP，否则列头会错位。
+COL_WEIGHTS = (10, 10, 15, 13)   # 角度 / 方向里的内容更长，多给一点
+GAP = 8           # 列间距（原来 6，偏紧）
+PAD_L = 12        # 内容左右内边距（表头与数据行必须一致）
+W_DEL = 22        # 行尾删除按钮的方框边长
+DEL_GAP = 4       # 删除按钮与方向列之间的留白
 
 
 # ---------- 样式构造（函数化，延迟取值，跟随 theme.C_*）----------
@@ -82,8 +90,10 @@ def _style_head_cell(align: str = 'l') -> str:
 
 
 def _style_head_band() -> str:
+    # 1px 透明边框是刻意加的：数据行有 1px 边框（选中态才上色），
+    # 边框会吃掉行内 2px 内容宽度。表头不补这 1px，四列的 x 就会整体差 1~3px。
     return (f'QFrame#headBand{{background:{theme.C_HOVER};'
-            f'border-radius:5px;border:none;}}')
+            f'border:1px solid transparent;border-radius:5px;}}')
 
 
 def _style_sep() -> str:
@@ -111,19 +121,103 @@ def _style_fdi_edit() -> str:
             f'QLineEdit:focus{{border-color:{theme.C_ACCENT};}}')
 
 
-def _style_chip(level: str) -> str:
-    """置信度小胶囊，按等级着色。"""
-    color = {'高': theme.C_SUCCESS, '中': theme.C_WARN,
-             '低': theme.C_DANGER}.get(level, theme.C_TEXT3)
-    return (f'QPushButton{{color:{color};background:transparent;border:none;'
-            f'font-size:{F_CAP}px;font-weight:600;padding:0;}}'
-            f'QPushButton:hover{{color:{theme.C_TEXT};}}')
+# ---------- 方向胶囊（近中 / 远中）----------
+# 方案 B：给方向一词加一层淡底色胶囊，用色相区分近中（主色）与远中（紫）。
+# 为什么不是纯文字着色：11px 的中文单靠色差在扫视时区分度不够，
+# 胶囊有形状 + 底色 + 文字色三重差异，隔几行看也能一眼分堆。
+DIR_CHIP_W, DIR_CHIP_H = 42, 18
 
 
-def _style_row_del() -> str:
-    return (f'QPushButton{{color:{theme.C_TEXT3};border:none;padding:0;'
-            f'font-size:13px;background:transparent;}}'
-            f'QPushButton:hover{{color:{theme.C_DANGER};}}')
+def _dir_colors(direction: str) -> tuple[str, str, str]:
+    """返回 (文字色, 底色, 描边色)；空方向走中性灰。"""
+    if direction == '近中':
+        return theme.C_DIR_MESIAL, theme.C_DIR_MESIAL_BG, theme.C_DIR_MESIAL_LINE
+    if direction == '远中':
+        return theme.C_DIR_DISTAL, theme.C_DIR_DISTAL_BG, theme.C_DIR_DISTAL_LINE
+    return theme.C_TEXT3, 'transparent', theme.C_BORDER
+
+
+def _style_dir_chip(direction: str) -> str:
+    fg, bg, line = _dir_colors(direction)
+    return (f'color:{fg};background:{bg};border:1px solid {line};'
+            f'border-radius:{DIR_CHIP_H // 2}px;font-size:{F_CAP}px;'
+            f'font-weight:600;')
+
+
+def make_dir_chip(direction: str) -> QLabel:
+    """方向胶囊：固定尺寸，保证列表与「当前测量」两处宽度一致。"""
+    lbl = QLabel(direction or '—')
+    lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    lbl.setFixedSize(DIR_CHIP_W, DIR_CHIP_H)
+    lbl.setStyleSheet(_style_dir_chip(direction))
+    if direction in ('近中', '远中'):
+        lbl.setToolTip(f'牙轴向{direction}倾斜')
+    return lbl
+
+
+def _flex(widget: QWidget) -> QWidget:
+    """让部件完全按 layout 权重分宽度。
+
+    QBoxLayout 的 stretch 只分「扣掉各自 sizeHint 之后」的剩余空间：
+    表头写「角度」、数据行写「−8.1°」，sizeHint 不同，同一权重也会错开几像素。
+    把尺寸策略设成 Ignored，sizeHint 不再参与计算。
+    """
+    widget.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+    return widget
+
+
+class DeleteButton(QPushButton):
+    """行尾删除按钮：自绘的两笔交叉线，hover 淡红底 + 红线。
+
+    为什么不用 `QPushButton('×')`：字符 × 的字形在 12~13px 下重心偏上、
+    笔画粗细随字体变，和周边 0.5px 描边的 UI 不是一个手笔。自绘可以精确控制
+    线宽（1.4px）、圆头端点、以及 hover 时才透出的淡红圆角底 —— 平时安静，
+    鼠标移上去才提示「这条可以删」。
+    """
+
+    def __init__(self, parent: QWidget | None = None) -> None:
+        super().__init__(parent)
+        self.setFixedSize(W_DEL, W_DEL)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setToolTip('删除该条')
+        self.setFlat(True)
+        self.setStyleSheet('background:transparent;border:none;padding:0;')
+        self._hover = False
+
+    def enterEvent(self, e) -> None:
+        self._hover = True
+        self.update()
+        super().enterEvent(e)
+
+    def leaveEvent(self, e) -> None:
+        self._hover = False
+        self.update()
+        super().leaveEvent(e)
+
+    def paintEvent(self, _e) -> None:
+        p = QPainter(self)
+        try:
+            p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            r = self.rect()
+            active = self._hover or self.isDown()
+            if active:
+                # rgba 淡红底：QSS 不便表达随主题变化的半透明，直接按当前 danger 色取 alpha
+                bg = QColor(theme.C_DANGER)
+                bg.setAlpha(46 if self.isDown() else 28)
+                p.setPen(Qt.PenStyle.NoPen)
+                p.setBrush(bg)
+                p.drawRoundedRect(r.adjusted(1, 1, -1, -1), 8, 8)
+
+            pen = QPen(QColor(theme.C_DANGER if active else theme.C_TEXT3), 1.4)
+            pen.setCapStyle(Qt.PenCapStyle.RoundCap)
+            p.setPen(pen)
+            # +0.5 让 1.4px 的线落在半像素上，避免抗锯齿把线糊成两像素灰边
+            cx, cy = r.center().x() + 0.5, r.center().y() + 0.5
+            d = 4.2
+            p.drawLine(QPointF(cx - d, cy - d), QPointF(cx + d, cy + d))
+            p.drawLine(QPointF(cx - d, cy + d), QPointF(cx + d, cy - d))
+        finally:
+            p.end()
 
 
 def _copy_on_click(lbl: QLabel, value: str, done: str = '已复制') -> None:
@@ -152,7 +246,6 @@ class ResultPanel(QWidget):
     rowClicked = Signal(int)
     rowDeleteClicked = Signal(int)
     rowFdiEdited = Signal(int, str)
-    confidenceClicked = Signal(int)
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -343,15 +436,13 @@ class ResultPanel(QWidget):
         ang_color = angle_color or (theme.C_TEXT3 if angle_text in ('—', '…')
                                    else theme.C_TEXT)
         ang.setStyleSheet(_style_angle_value(ang_color))
+        ang.setFont(theme.numeric_font(ang.font()))   # 等宽数字：拖动读数不左右抖
         if angle_copy:
             _copy_on_click(ang, angle_copy)
         ang_lay.addWidget(ang, 0, Qt.AlignmentFlag.AlignVCenter)
         if direction:
-            dir_lbl = QLabel(direction)
-            dir_lbl.setStyleSheet(
-                f'color:{theme.C_TEXT2};font-size:{F_CAP}px;{_transparent()}')
-            ang_lay.addWidget(dir_lbl, 0,
-                              Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
+            ang_lay.addWidget(make_dir_chip(direction), 0,
+                              Qt.AlignmentFlag.AlignVCenter)
         ang_lay.addStretch(1)
         fields.addWidget(self._field('角度', ang_box), 1)
 
@@ -432,30 +523,35 @@ class ResultPanel(QWidget):
         lay.setContentsMargins(PAD_L, 0, PAD_L, 0)
         lay.setSpacing(GAP)
 
-        def cell(text: str, width: int, align: str = 'l') -> QLabel:
+        def cell(text: str, align: str = 'l') -> QLabel:
             lbl = QLabel(text)
-            lbl.setFixedWidth(width)
             lbl.setStyleSheet(_style_head_cell(align))
             lbl.setAlignment({'l': Qt.AlignmentFlag.AlignLeft,
                               'r': Qt.AlignmentFlag.AlignRight,
                               'c': Qt.AlignmentFlag.AlignHCenter}[align]
                              | Qt.AlignmentFlag.AlignVCenter)
             self._head_cells.append((lbl, align))
-            return lbl
+            return _flex(lbl)
 
-        lay.addWidget(cell('编号', W_SEQ))
-        lay.addWidget(cell('牙号', W_FDI))
-        lay.addWidget(cell('角度', W_ANG, 'r'))
-        lay.addWidget(cell('方向', W_DIR))
-        lay.addStretch(1)
-        lay.addWidget(cell('置信', W_CONF, 'c'))
-        lay.addWidget(cell('', W_DEL))
+        # 与数据行同一组权重、同一套 item 结构，列头才会跟数据严格对齐。
+        # 末尾必须放一个「固定 22 宽的透明 widget」而不是 addSpacing：相邻两个
+        # spacer 之间 Qt 不插 spacing，而数据行那里是真控件会插，两者会差 8px。
+        for text, align, weight in (('编号', 'l', COL_WEIGHTS[0]),
+                                    ('牙号', 'l', COL_WEIGHTS[1]),
+                                    ('角度', 'c', COL_WEIGHTS[2]),
+                                    ('方向', 'l', COL_WEIGHTS[3])):
+            lay.addWidget(cell(text, align), weight)
+        lay.addSpacing(DEL_GAP)
+        pad = QWidget()
+        pad.setFixedWidth(W_DEL)
+        pad.setStyleSheet(_transparent())
+        lay.addWidget(pad)
         return w
 
     def refresh_list(self, teeth: List[Tooth], selected_seq: Optional[int]) -> None:
         # 内容签名一致则完全跳过重建，避免重复建/删行部件造成闪动
         sig = (selected_seq, tuple(
-            (t.seq, t.fdi, t.angle_deg, t.direction, t.confidence) for t in teeth))
+            (t.seq, t.fdi, t.angle_deg, t.direction) for t in teeth))
         if sig == self._list_sig:
             return
         self._list_sig = sig
@@ -487,26 +583,25 @@ class ResultPanel(QWidget):
             row = self._build_row(tooth, selected_seq == tooth.seq)
             self._list_lay.insertWidget(self._list_lay.count() - 1, row)
 
+
     def _build_row(self, tooth: Tooth, selected: bool) -> QFrame:
         row = QFrame()
         row.setStyleSheet(_style_row(selected))
         lay = QHBoxLayout(row)
-        lay.setContentsMargins(PAD_L, 6, PAD_L, 6)
+        lay.setContentsMargins(PAD_L, 5, PAD_L, 5)
         lay.setSpacing(GAP)
 
         seq = QLabel(str(tooth.seq))
-        seq.setFixedWidth(W_SEQ)
         seq.setStyleSheet(
             f'color:{theme.C_ACCENT_INK if selected else theme.C_TEXT3};'
             f'font-size:{F_CAP + 1}px;{_transparent()}')
-        lay.addWidget(seq)
+        lay.addWidget(_flex(seq), COL_WEIGHTS[0])
 
         fdi = QLabel(tooth.fdi or '—')
-        fdi.setFixedWidth(W_FDI)
         fdi.setStyleSheet(
             f'color:{theme.C_TEXT if tooth.fdi else theme.C_TEXT3};'
             f'font-size:{F_SM}px;{_transparent()}')
-        lay.addWidget(fdi)
+        lay.addWidget(_flex(fdi), COL_WEIGHTS[1])
 
         if tooth.angle_deg is not None:
             angle_txt = f'{tooth.angle_deg:+.1f}°'
@@ -516,33 +611,27 @@ class ResultPanel(QWidget):
         else:
             angle_txt, color = '—', theme.C_TEXT3
         ang = QLabel(angle_txt)
-        ang.setFixedWidth(W_ANG)
-        ang.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        # 列宽按权重平均，角度取居中：固定宽度下右对齐会贴住方向列，看着偏挤
+        ang.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         ang.setStyleSheet(
             f'color:{color};font-size:{F_SM}px;font-weight:600;{_transparent()}')
-        lay.addWidget(ang)
+        ang.setFont(theme.numeric_font(ang.font()))   # 列表角度列同款等宽数字
+        lay.addWidget(_flex(ang), COL_WEIGHTS[2])
 
-        direction = QLabel(tooth.direction or '—')
-        direction.setFixedWidth(W_DIR)
-        direction.setStyleSheet(
-            f'color:{theme.C_TEXT2};font-size:{F_CAP}px;{_transparent()}')
-        lay.addWidget(direction)
+        # 方向：容器跟着权重拉伸，胶囊靠左，与表头「方向」列起点对齐
+        dir_wrap = QWidget()
+        dir_wrap.setStyleSheet(_transparent())
+        dir_lay = QHBoxLayout(dir_wrap)
+        dir_lay.setContentsMargins(0, 0, 0, 0)
+        dir_lay.setSpacing(0)
+        direction = make_dir_chip(tooth.direction or '')
+        dir_lay.addWidget(direction, 0, Qt.AlignmentFlag.AlignLeft
+                          | Qt.AlignmentFlag.AlignVCenter)
+        lay.addWidget(_flex(dir_wrap), COL_WEIGHTS[3])
 
-        lay.addStretch(1)
+        lay.addSpacing(DEL_GAP)
 
-        conf = QPushButton(tooth.confidence or '–')
-        conf.setCursor(Qt.CursorShape.PointingHandCursor)
-        conf.setFixedSize(W_CONF, 20)
-        conf.setStyleSheet(_style_chip(tooth.confidence or ''))
-        conf.setToolTip('点击切换置信度')
-        conf.clicked.connect(lambda _, s=tooth.seq: self.confidenceClicked.emit(s))
-        lay.addWidget(conf)
-
-        del_btn = QPushButton('×')
-        del_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        del_btn.setFixedSize(W_DEL, 18)
-        del_btn.setStyleSheet(_style_row_del())
-        del_btn.setToolTip('删除该条')
+        del_btn = DeleteButton()
         del_btn.clicked.connect(lambda _, s=tooth.seq: self.rowDeleteClicked.emit(s))
         lay.addWidget(del_btn)
 

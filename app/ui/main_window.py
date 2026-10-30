@@ -94,7 +94,7 @@ from ..model.protocol import is_valid_fdi
 from ..model.session import ImageData, Session
 from .. import applog
 from . import theme
-from .about import show_about
+from .about import show_help
 from .canvas import Canvas
 from .icons import get_icon
 from .result_panel import ResultPanel
@@ -426,10 +426,11 @@ class MainWindow(QMainWindow):
         self.act_list.setToolTip('图片列表（L）')
         self.act_export = QAction('导出CSV', self)
         self.act_export.setToolTip('导出 CSV…')
-        # 关于放在工具栏最右端（F1）：软件名/版本/作者/开源地址都在里面
-        self.act_about = QAction('关于', self)
+        # 使用说明放在工具栏最右端（F1）：操作要点、算法、打赏、仓库都在里面
+        # （属性名保留 act_about，权限列表/优先级表里引用它，改名只会增加噪音）
+        self.act_about = QAction('使用说明', self)
         self.act_about.setShortcut(QKeySequence('F1'))
-        self.act_about.setToolTip('关于 ImageAngle（F1）')
+        self.act_about.setToolTip('使用说明（F1）')
 
         # 统一配图标（DPI 感知、暗色可读）
         self.act_open.setIcon(get_icon('open'))
@@ -466,7 +467,7 @@ class MainWindow(QMainWindow):
         tb.addSeparator()
         tb.addAction(self.act_panel)
         tb.addAction(self.act_export)
-        # 「关于」永远在最末：不参与测量动线，位置固定反而好找
+        # 「使用说明」永远在最末：不参与测量动线，位置固定反而好找
         tb.addSeparator()
         tb.addAction(self.act_about)
 
@@ -512,7 +513,7 @@ class MainWindow(QMainWindow):
             # 贴在绿色导出按钮左边（同组的前后翻页都是图标，单独升文字又会参差）。
             # 提到 2 档，和「撤销/删除/清空」一起整组升降，视觉上才成组。
             (self.act_panel, 2),
-            # 「关于」最不常用，窗口变窄时最先丢文字只剩图标
+            # 「使用说明」最不常用，窗口变窄时最先丢文字只剩图标
             (self.act_about, 4),
         ]
 
@@ -536,7 +537,7 @@ class MainWindow(QMainWindow):
         self.act_del.triggered.connect(self._on_delete)
         self.act_clear.triggered.connect(self._on_clear)
         self.act_export.triggered.connect(self._on_export_csv)
-        self.act_about.triggered.connect(lambda: show_about(self))
+        self.act_about.triggered.connect(lambda: show_help(self))
         self.canvas.modeChanged.connect(self._on_canvas_mode_changed)
         self.canvas.drawStepChanged.connect(self._on_draw_step)
         self.canvas.referenceChanged.connect(self._on_reference_changed)
@@ -550,7 +551,6 @@ class MainWindow(QMainWindow):
         self.panel.rowClicked.connect(self._on_row_clicked)
         self.panel.rowDeleteClicked.connect(self._on_row_delete)
         self.panel.rowFdiEdited.connect(self._on_row_fdi_edited)
-        self.panel.confidenceClicked.connect(self._on_confidence_clicked)
 
     def _on_fit(self) -> None:
         """回到打开图片时的整图大小（缩放复位 + 居中），对应 Ctrl+0。"""
@@ -1068,20 +1068,6 @@ class MainWindow(QMainWindow):
         for t in self.canvas.image_data.teeth:
             if t.seq == seq:
                 self._apply_fdi(t, text)
-                break
-
-    def _on_confidence_clicked(self, seq: int) -> None:
-        if self.canvas.image_data is None:
-            return
-        for t in self.canvas.image_data.teeth:
-            if t.seq == seq:
-                levels = ('', '高', '中', '低')
-                cur = t.confidence or ''
-                idx = levels.index(cur) if cur in levels else 0
-                t.confidence = levels[(idx + 1) % len(levels)]
-                self._refresh_panel()
-                self._schedule_save()
-                self.statusBar().showMessage(f'序号 {seq} 置信度：{t.confidence or "空"}')
                 break
 
     def _refresh_panel(self) -> None:

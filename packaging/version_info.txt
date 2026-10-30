@@ -1,12 +1,12 @@
 # UTF-8
 #
 # ImageAngle 的 Windows 可执行文件版本信息。
-# 与 app/__init__.py 里的 __version__ 保持一致（1.0.5 → (1, 0, 5, 0)）。
+# 与 app/__init__.py 里的 __version__ 保持一致（1.1.0 → (1, 1, 0, 0)）。
 # 这些字段会显示在「文件属性 → 详细信息」和任务管理器的进程信息里。
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 5, 0),
-    prodvers=(1, 0, 5, 0),
+    filevers=(1, 1, 0, 0),
+    prodvers=(1, 1, 0, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -21,12 +21,12 @@ VSVersionInfo(
         [
           StringStruct('CompanyName', 'ImageAngle'),
           StringStruct('FileDescription', 'ImageAngle 图片量角器'),
-          StringStruct('FileVersion', '1.0.5.0'),
+          StringStruct('FileVersion', '1.1.0.0'),
           StringStruct('InternalName', 'ImageAngle'),
           StringStruct('LegalCopyright', 'Copyright (C) 2026'),
           StringStruct('OriginalFilename', 'ImageAngle.exe'),
           StringStruct('ProductName', 'ImageAngle 图片量角器'),
-          StringStruct('ProductVersion', '1.0.5.0'),
+          StringStruct('ProductVersion', '1.1.0.0'),
         ],
       )
     ]),
