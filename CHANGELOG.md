@@ -59,6 +59,15 @@
   `resources/donate_wechat.png` / `resources/donate_alipay.png`，写进两个打包 spec 的 `datas`
 - 点击任一码弹出原图预览（全分辨率，点图或 Esc 关闭）
 
+**打包瘦身**（便携包 33.5 → 32.9 MB，安装包 24.5 → 22.9 MB）：
+- 两份 spec 的 `optimize` 0 → 2（等价 `python -OO`）：编译期丢掉 docstring 和 assert
+- `qt_prune.EXCLUDES` 补 `numpy.random` / `numpy.fft` / `numpy.polynomial` / `numpy.testing`：
+  numpy 2.x 是懒加载子模块，本程序只用 `frombuffer` / `percentile` / `clip` / `astype`。
+  删之前用「屏蔽 import + 跑全量 215 例」验证过不会走到这几个模块
+- 想再小只能动 numpy 的 OpenBLAS（`libscipy_openblas64_*.dll`，19.6 MB）——
+  实测去掉后 `import numpy` 直接 `DLL load failed`，动不了；剩余大头是 Qt 的
+  Core/Gui/Widgets（约 25 MB）和 python312.dll（6.6 MB），都是必需的
+
 ## v1.0.5 · 2026-10-29 · 新增「关于」入口；首发 GitHub
 
 **新增「关于」对话框**：工具栏最右端 `导出CSV` 之后隔一道分隔线，图标 + 文字，

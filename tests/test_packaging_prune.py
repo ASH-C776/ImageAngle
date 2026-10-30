@@ -83,9 +83,44 @@ def test_excludes_do_not_break_startup_chain():
     # urllib → pathlib → zipfile（pyi_rth_inspect 会用到）
     for mod in ('urllib', 'email', 'http', 'pathlib', 'zipfile'):
         assert mod not in EXCLUDES, mod
-    # numpy.lib → matrixlib 在 import numpy 时就拉 linalg
-    for mod in ('numpy.linalg', 'numpy.random', 'numpy.fft'):
-        assert mod not in EXCLUDES, mod
+    # numpy.lib → matrixlib 在 import numpy 时就拉 linalg，排了就启动即崩。
+    # （random / fft 是 numpy 2.x 的懒加载子模块，可以排 —— 见下一个测试，
+    #   这里只锁 linalg。）
+    assert 'numpy.linalg' not in EXCLUDES
+
+
+def test_pruned_numpy_submodules_are_really_unused():
+    """排掉 numpy.random / fft / polynomial / testing 后，程序仍然跑得通。
+
+    这几个模块耗时不小（randint 一套 pyd 约 1.1 MB），但 numpy 2.x 是懒加载，
+    只有在真正访问 np.random 这类属性时才会去 import。这里在**子进程**里
+    装一个 meta_path 拦截器把这几个模块封死，再走一遍真实的取像 → 转 8 位
+    流程（percentile / clip / astype 都在里面），确认没有任何一处偷偷用到。
+    """
+    import subprocess
+
+    code = (
+        "import sys, importlib.abc\n"
+        "BLOCK = {'numpy.random', 'numpy.fft', 'numpy.polynomial', 'numpy.testing'}\n"
+        "class B(importlib.abc.MetaPathFinder):\n"
+        "    def find_spec(self, name, path=None, target=None):\n"
+        "        if name in BLOCK or any(name.startswith(b + '.') for b in BLOCK):\n"
+        "            raise ImportError('blocked: ' + name)\n"
+        "        return None\n"
+        "sys.meta_path.insert(0, B())\n"
+        "import numpy as np\n"
+        "from app.io import image_loader as il\n"
+        "img = np.linspace(0, 65535, 4096, dtype=np.uint16).reshape(64, 64)\n"
+        "out = il.to_uint8(img)\n"
+        "assert out.dtype == np.uint8 and out.max() == 255, out.dtype\n"
+        "print('ok')\n")
+    proc = subprocess.run([sys.executable, '-c', code], cwd=ROOT,
+                          capture_output=True, text=True, encoding='utf-8',
+                          errors='replace', timeout=120)
+    assert proc.returncode == 0, (proc.stdout + proc.stderr)[-1500:]
+    assert 'ok' in proc.stdout
+    for mod in ('numpy.random', 'numpy.fft'):
+        assert mod in EXCLUDES, f'{mod} 应已排除（省体积）'
 
 
 def test_excludes_cover_network_and_dev_tools():

@@ -28,10 +28,10 @@
 
 | 文件 | 体积 | 适合谁 |
 |---|---|---|
-| 便携包 · `ImageAngle-1.0.5-便携包.exe`（GitHub 上是 `-Portable.exe`） | 33.5 MB | 单文件，拷贝到任何 Windows 10/11 机器双击即用，免安装 |
-| 安装包 · `ImageAngle-1.0.5-安装包.exe`（GitHub 上是 `-Setup.exe`） | 24.5 MB | 装到当前用户目录（**不需要管理员**），有开始菜单 / 桌面快捷方式和卸载项 |
+| 便携包 · `ImageAngle-1.1.0-便携包.exe`（GitHub 上是 `-Portable.exe`） | 32.9 MB | 单文件，拷贝到任何 Windows 10/11 机器双击即用，免安装 |
+| 安装包 · `ImageAngle-1.1.0-安装包.exe`（GitHub 上是 `-Setup.exe`） | 22.9 MB | 装到当前用户目录（**不需要管理员**），有开始菜单 / 桌面快捷方式和卸载项 |
 
-GitHub 的附件名不支持非 ASCII 字符，中文包名会被剔成空（`ImageAngle-1.0.5-.exe`），所以那边用 `-Portable` / `-Setup`；Gitee 保留中文名。两个站点的文件内容完全一致，本地 `py scripts/build.py` 产出的也是中文名。
+GitHub 的附件名不支持非 ASCII 字符，中文包名会被剔成空（`ImageAngle-1.1.0-.exe`），所以那边用 `-Portable` / `-Setup`；Gitee 保留中文名。两个站点的文件内容完全一致，本地 `py scripts/build.py` 产出的也是中文名。
 
 两个包功能完全相同，测量记录也互通（都存在 `%APPDATA%\ImageAngle`）。安装版启动更快（约 0.57 s vs 1.4 s），因为单文件版每次启动都要把 81 MB 运行时解压到临时目录。
 
